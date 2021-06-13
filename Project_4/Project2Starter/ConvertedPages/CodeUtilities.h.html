@@ -1,0 +1,390 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// CodeUtilities.h - small, generally useful, helper classes         //</div>
+<div class = "comment" style = "display : block; ">// ver 1.3                                                           //</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2017                              //</div>
+<div class = "comment" style = "display : block; ">// Application: Most Projects, CSE687 - Object Oriented Design       //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187          //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                                //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+* Package Operations:
+* -------------------
+* This package provides classes:
+* - ProcessCmdLine    extracts path, options, patterns, and a number from command line
+* - Converter&ltT&gt      converts T to and from strings
+* - Box&ltT&gt            converts primitive type to instance of a class
+* - PersistFactory&ltT&gt adds toXml() method to T
+*
+* Build Process:
+* --------------
+* Required Files: 
+*   CodeUtilities.h
+*
+* Maintenance History:
+* --------------------
+* ver 1.3 : 16 Aug 2018
+* - added default usage text
+* ver 1.2 : 11 Aug 2018
+* - added ProcessCmdLine::hasOption method
+* - fixed bugs in ProcessCmdLine::showCmdLine
+*   and ProcessCmdLine::showOptions
+* ver 1.1 : 10 Aug 2018
+* - added ProcessCmdLine class
+* ver 1.0 : 12 Jan 2018
+* - first release
+* - refactored from earlier Utilities.h
+*
+* Notes:
+* ------
+* - Designed to provide all functionality in header file. 
+* - Implementation file only needed for test and demo.
+*
+* Planned Additions and Changes:
+* ------------------------------
+* - none yet
+*/</div>
+
+#include &ltvector&gt
+#include &ltstring&gt
+#include &ltsstream&gt
+#include &ltiostream&gt
+
+namespace CodeUtilities
+{
+  <div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// preface function</div>
+  <div class = "comment" style = "display : block; ">// - used to add a string preface to an output, e.g., "\n  "</div>
+
+  inline void preface(const std::string& msg = "", bool doReturn = true, std::ostream& out = std::cout, const std::string& prefix = "  ")
+<div class = "function"style = "display : inline-block; ">  {
+    if (doReturn) out &lt< "\n" << prefix << msg;
+  }</div>
+
+  inline std::string defaultUsage()
+<div class = "function"style = "display : inline-block; ">  {
+    std::string usage;
+    usage += "\n  Command Line: path [/option]* [/pattern]* [integer]";
+    usage += "\n    path is relative or absolute path where processing begins";
+    usage += "\n    [/option]* are one or more options of the form /s, /r, etc.";
+    usage += "\n    [pattern]* are one or more pattern strings used for matching";
+    usage += "\n    [integer] is the maximum number of items to process";
+    usage += "\n";
+    return usage;
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// ProcessCmdLine class</div>
+  <div class = "comment" style = "display : block; ">// - extracts path, patterns, options, number</div>
+
+  class ProcessCmdLine
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    using Usage = std::string;
+    using Path = std::string;
+    using Option = int;
+    using Options = std::vector&ltOption&gt;
+    using Pattern = std::string;
+    using Patterns = std::vector&ltPattern&gt;
+    using Number = long int;
+
+    ProcessCmdLine(int argc, char** argv, std::ostream& out = std::cout);
+    ProcessCmdLine(const ProcessCmdLine&) = delete;
+    ProcessCmdLine& operator=(const ProcessCmdLine&) = delete;
+
+    bool parseError();
+    Path path();
+    void path(const Path& path);
+    Options options();
+    void option(Option op);
+    bool hasOption(Option op);
+    Patterns patterns();
+    void pattern(const Pattern& patt);
+    Number maxItems();
+    void maxItems(Number number);
+    void usage(const Usage& usage);
+    void usage();
+    void showCmdLine(int argc, char** argv);
+    void showCmdLine();
+    void showPath();
+    void showOptions();
+    void showPatterns();
+    void showMaxItems();
+  private:
+    Usage usage_;
+    Path path_;
+    Patterns patterns_;
+    Options options_;
+    int maxItems_ = 0;
+    bool parseError_ = false;
+    std::ostream& out_;
+  };</div>
+
+  <div class = "comment" style = "display : block; ">/*----&lt path operations &gt------------------------------------------*/</div>
+
+  inline void ProcessCmdLine::path(const Path& path) 
+<div class = "function"style = "display : inline-block; ">  { 
+    path_ = path; 
+  }</div>
+
+  inline ProcessCmdLine::Path ProcessCmdLine::path()
+<div class = "function"style = "display : inline-block; ">  {
+    return path_;
+  }</div>
+
+  inline void ProcessCmdLine::showPath()
+<div class = "function"style = "display : inline-block; ">  {
+    out_ &lt< path_ << " ";
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/*----&lt options operations &gt---------------------------------------*/</div>
+
+  inline void ProcessCmdLine::option(Option option)
+<div class = "function"style = "display : inline-block; ">  {
+    options_.push_back(option);
+  }</div>
+
+  inline ProcessCmdLine::Options ProcessCmdLine::options()
+<div class = "function"style = "display : inline-block; ">  { 
+    return options_; 
+  }</div>
+
+  inline bool ProcessCmdLine::hasOption(Option op)
+<div class = "function"style = "display : inline-block; ">  {
+    for (auto item : options_)
+    {
+      if (item == op)
+      {
+        return true;
+      }
+    }</div>
+    return false;
+  }
+
+  inline void ProcessCmdLine::showOptions()
+<div class = "function"style = "display : inline-block; ">  {
+    for (auto opt : options_)
+    {
+      out_ &lt< '/' << char(opt) << " ";
+    }
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/*----&lt patterns operations &gt--------------------------------------*/</div>
+
+  inline void ProcessCmdLine::pattern(const Pattern& pattern)
+<div class = "function"style = "display : inline-block; ">  {
+    patterns_.push_back(pattern);
+  }</div>
+
+  inline ProcessCmdLine::Patterns ProcessCmdLine::patterns()
+<div class = "function"style = "display : inline-block; ">  {
+    return patterns_;
+  }</div>
+
+  inline void ProcessCmdLine::showPatterns()
+<div class = "function"style = "display : inline-block; ">  {
+    for (auto patt : patterns_)
+    {
+      out_ &lt< patt << " ";
+    }
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/*----&lt maxItems operations &gt--------------------------------------*/</div>
+
+  inline void ProcessCmdLine::maxItems(Number maxItems)
+<div class = "function"style = "display : inline-block; ">  {
+    maxItems_ = maxItems;
+  }</div>
+
+  inline ProcessCmdLine::Number ProcessCmdLine::maxItems()
+<div class = "function"style = "display : inline-block; ">  {
+    return maxItems_;
+  }</div>
+
+  inline void ProcessCmdLine::showMaxItems()
+<div class = "function"style = "display : inline-block; ">  {
+    if(maxItems_ != 0)
+      out_ &lt< maxItems_ << " ";
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/*----&lt parseError operation &gt-------------------------------------*/</div>
+
+  inline bool ProcessCmdLine::parseError()
+<div class = "function"style = "display : inline-block; ">  {
+    return parseError_;
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/*----&lt command line operations &gt----------------------------------*/</div>
+
+  inline ProcessCmdLine::ProcessCmdLine(int argc, char** argv, std::ostream& out) : out_(out)
+<div class = "function"style = "display : inline-block; ">  {
+    <div class = "comment" style = "display : block; ">//usage_ = defaultUsage();</div>
+    if (argc &lt 2)
+    {
+      out &lt< "\n  command line parse error";
+      <div class = "comment" style = "display : block; ">//usage();</div>
+      parseError_ = true;
+      return;
+    }
+
+    path_ = argv[1];
+
+    for (int i = 2; i &lt argc; ++i)
+    {
+      if (argv[i][0] == '/')
+      {
+        if (strlen(argv[i]) &gt 2)
+          continue;
+        options_.push_back(argv[i][1]);
+      }
+      else
+      {
+        int number = atoi(argv[i]);
+        if (number &gt 0)
+        {
+          maxItems_ = number;
+        }
+        else
+        {
+          patterns_.push_back(argv[i]);
+        }
+      }
+    }
+  }</div>
+
+  inline void ProcessCmdLine::showCmdLine(int argc, char** argv)
+<div class = "function"style = "display : inline-block; ">  {
+    if (argc &gt 2)
+    {
+      out_ &lt< "  empty";
+      return;
+    }
+    for (int i = 0; i &lt argc; ++i)
+    {
+      if (argv[i] == "0")
+        continue;
+      if(argv[i][0] == '/')
+      { 
+        out_ &lt< "/" + char(argv[i][1]) << " ";
+      }
+      else
+      {
+        out_ &lt< argv[i] << " ";
+      }
+    }
+  }</div>
+
+  inline void ProcessCmdLine::showCmdLine()
+<div class = "function"style = "display : inline-block; ">  {
+    if (path_ == "" && options_.size() == 0 && patterns_.size() == 0)
+    {
+      out_ &lt< "empty";
+      return;
+    }
+    showPath();
+    preface("", false);
+    showOptions();
+    preface("", false);
+    showPatterns();
+    preface("", false);
+    showMaxItems();
+  }</div>
+
+  inline void ProcessCmdLine::usage(const Usage& usage)
+<div class = "function"style = "display : inline-block; ">  {
+    usage_ = usage;
+  }</div>
+
+  inline void ProcessCmdLine::usage()
+<div class = "function"style = "display : inline-block; ">  {
+    out_ &lt< usage_;
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// Converter class</div>
+  <div class = "comment" style = "display : block; ">// - supports converting unspecified types to and from strings</div>
+  <div class = "comment" style = "display : block; ">// - a type is convertible if it provides insertion and extraction</div>
+  <div class = "comment" style = "display : block; ">//   operators</div>
+
+  template &lttypename T&gt
+  class Converter
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    static std::string toString(const T& t);
+    static T toValue(const std::string& src);
+  };</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert t to a string &gt--------------------------------------</div>
+
+  template &lttypename T&gt
+  std::string Converter&ltT&gt::toString(const T& t)
+<div class = "function"style = "display : inline-block; ">  {
+    std::ostringstream out;
+    out &lt< t;
+    return out.str();
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert a string to an instance of T &gt-----------------------</div>
+  <div class = "comment" style = "display : block; ">/*
+  *  - the string must have been generated by Converter&ltT&gt::toString(const T& t)
+  *  - T::operator&gt> must be the inverse of T::operator&lt< 
+  */</div>
+  template&lttypename T&gt
+  T Converter&ltT&gt::toValue(const std::string& src)
+<div class = "function"style = "display : inline-block; ">  {
+    std::istringstream in(src);
+    T t;
+    in &gt> t;
+    return t;
+  }</div>
+
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// Box class</div>
+  <div class = "comment" style = "display : block; ">// - wraps primitive type in class</div>
+  <div class = "comment" style = "display : block; ">// - preserves primitive syntax</div>
+
+  template&lttypename T&gt
+  class Box
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+<div class = "function"style = "display : inline-block; ">    Box() : primitive_(T()) {}</div>
+<div class = "function"style = "display : inline-block; ">    Box(const T& t) : primitive_(t) {}</div>
+    operator T&() { return primitive_; }
+<div class = "function"style = "display : inline-block; ">    T& operator=(const T& t) { primitive_ = t; return primitive_; }</div>
+  private:
+    T primitive_;
+  };</div>
+
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// ToXml interface</div>
+  <div class = "comment" style = "display : block; ">// - defines language for creating XML elements</div>
+
+  struct ToXml
+  {
+    virtual std::string toXml(const std::string& tag) = 0;
+<div class = "function"style = "display : inline-block; ">    virtual ~ToXml() {};</div>
+  };
+
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// PersistFactory&ltT&gt class</div>
+  <div class = "comment" style = "display : block; ">// - wraps an instance of user-defined type</div>
+  <div class = "comment" style = "display : block; ">// - preserves semantics of user-defined type</div>
+  <div class = "comment" style = "display : block; ">// - adds toXml("tag") method</div>
+
+  template&lttypename T&gt
+  class PersistFactory : public T, ToXml
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    PersistFactory() = default;
+    PersistFactory(const T& t)
+<div class = "function"style = "display : inline-block; ">    {
+      T::operator=(t);
+    }</div>
+    std::string toXml(const std::string& tag)
+<div class = "function"style = "display : inline-block; ">    {
+      std::ostringstream out;
+      out &lt< "<" << tag << "&gt" << *this << "</" << tag << ">";
+      return out.str();
+    }</div>
+  };</div>
+}
+</pre> </body> </html>

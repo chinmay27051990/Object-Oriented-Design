@@ -1,0 +1,75 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Properties.h - provides getter and setter methods               //</div>
+<div class = "comment" style = "display : block; ">// ver 1.1                                                         //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Fall 2018         //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+*  Package Operations:
+*  -------------------
+*  This package provides a single Property&ltT&gt class that provides
+*  getter and setter methods and backing store T t_ using the property 
+*  name.
+*  - Here's an example:
+*      Property&ltint&gt intProp;
+*      intProp(42)    Sets its internal store to 42
+*      intProp()      returns the internal store value
+*  - So one declaration creates two methods with simple syntax, using
+*    the property's instance name. 
+*  - The getter and setter methods are virtual, so you can override
+*    them to provide logic that constraints getting and setting.
+*  - Property also provides the method ref() which returns a reference
+*    to the underlying stored value.  That lets us call member functions
+*    directly on the stored type.  However, that lets users bypass
+*    setter logic, so use it with caution.
+*
+*  Required Files:
+*  ---------------
+*  Properties.h
+*
+*  Maintenance History:
+*  --------------------
+*  ver 1.1 : 30 Jan 2019
+*  - added ref()
+*  ver 1.0 : 11 Oct 2018
+*  - first release
+*/</div>
+namespace Utilities
+{
+  template &lttypename T&gt
+  class Property
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+<div class = "function"style = "display : inline-block; ">    virtual ~Property() {}</div>
+
+    <div class = "comment" style = "display : block; ">//----&lt setter assigns the state of t to the internal store &gt----</div>
+
+    virtual void operator()(const T& t)
+<div class = "function"style = "display : inline-block; ">    {
+      t_ = t;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt getter returns the value of the internal store &gt---------</div>
+    <div class = "comment" style = "display : block; ">/*
+    *  - Return by value is used so that clients cannot change the
+    *    internal store without using setter.
+    */</div>
+    virtual T operator()()
+<div class = "function"style = "display : inline-block; ">    {
+      return t_;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt getter that returns reference &gt--------------------------</div>
+    <div class = "comment" style = "display : block; ">/*
+    *  - Allows us to call member function on stored type
+    *  - Note that this allows a user to bypass any logic
+    *    in setter.
+    */</div>
+    virtual T& ref()
+<div class = "function"style = "display : inline-block; ">    {
+      return t_;
+    }</div>
+  private:
+    T t_;
+  };</div>
+}
+</pre> </body> </html>

@@ -1,0 +1,19 @@
+﻿  AbstrSynTree.cpp
+  Converter.cpp
+  Display.cpp
+  FileSystem.cpp
+  GrammarHelpers.cpp
+  Loader.cpp
+  Logger.cpp
+  ScopeStack.cpp
+  Semi.cpp
+  Toker.cpp
+  Utilities.cpp
+  ActionsAndRules.cpp
+  ConfigureParser.cpp
+  Executive.cpp
+  Parser.cpp
+  Generating Code...
+c:\users\kuldeep\desktop\project2starter\project2starter\executive.cpp(89): warning C4715: 'PublisherComm::CodePublisher::publish': not all control paths return a value
+c:\users\kuldeep\desktop\project2starter\converter\converter.h(127): warning C4715: 'Conversion::parserinConversion': not all control paths return a value
+  Project2Starter.vcxproj -> C:\Users\Kuldeep\Desktop\Project2Starter\Debug\Project2Starter.lib

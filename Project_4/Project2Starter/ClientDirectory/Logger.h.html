@@ -1,0 +1,121 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#ifndef LOGGER_H
+#define LOGGER_H
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Logger.h - log text messages to std::ostream                    //</div>
+<div class = "comment" style = "display : block; ">// ver 1.2                                                         //</div>
+<div class = "comment" style = "display : block; ">//-----------------------------------------------------------------//</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett (c) copyright 2015                                  //</div>
+<div class = "comment" style = "display : block; ">// All rights granted provided this copyright notice is retained   //</div>
+<div class = "comment" style = "display : block; ">//-----------------------------------------------------------------//</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2015                            //</div>
+<div class = "comment" style = "display : block; ">// Application: Several Projects, CSE687 - Object Oriented Design  //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187        //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                              //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+* Package Operations:
+* -------------------
+* This package supports logging for multiple concurrent clients to a
+* single std::ostream.  It does this be enqueuing messages in a
+* blocking queue and dequeuing with a single thread that writes to
+* the std::ostream.
+*
+* It provides two logging classes, a non-template Logger class with 
+* instance methods, and a template class StaticLogger&ltint&gt with static 
+* methods.
+*
+* In most of my code I use the following definitions:
+* 
+*   using Rslt = StaticLogger&lt0&gt;    <div class = "comment" style = "display : block; ">// show program results</div>
+*   using Demo = StaticLogger&lt1&gt;    <div class = "comment" style = "display : block; ">// show demonstration outputs</div>
+*   using Dbug = StaticLogger&lt2&gt;    <div class = "comment" style = "display : block; ">// show debugging outputs</div>
+*
+* That allows a user to determine the kinds of outputs the program
+* presents based on which of these loggers are started, e.g., by
+* changing only a couple of lines of code.
+*
+* Build Process:
+* --------------
+* Required Files: Logger.h, Logger.cpp, Utilities.h, Utilities.cpp
+*
+* Build Command: devenv logger.sln /rebuild debug
+*
+* Maintenance History:
+* --------------------
+* ver 1.2 : 27 Aug 2016
+* - added flushing of streams in Logger::flush()
+* - call thread join on stop instead of spin locking
+* ver 1.1 : 06 Aug 2016
+* - added member function flush() to wait for output to complete
+* ver 1.0 : 22 Feb 2016
+* - first release
+*
+* Planned Additions and Changes:
+* ------------------------------
+* - fix pause locking
+*/</div>
+
+#include &ltiostream&gt
+#include &ltstring&gt
+#include &ltvector&gt
+#include &ltthread&gt
+#include "../Cpp11-BlockingQueue/Cpp11-BlockingQueue.h"
+
+namespace Logging
+{
+  class Logger
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+<div class = "function"style = "display : inline-block; ">    Logger() {}</div>
+    void attach(std::ostream* pOut);
+    void start();
+    bool running();
+    void pause(bool doPause);
+    bool paused();
+    void flush();
+    void stop(const std::string& msg = "");
+    void wait();
+    void write(const std::string& msg);
+    void title(const std::string& msg, char underline = '-');
+    ~Logger();
+    Logger(const Logger&) = delete;
+    Logger& operator=(const Logger&) = delete;
+  private:
+    std::thread* _pThr;
+    std::vector&ltstd::ostream*&gt streams_;
+    Async::BlockingQueue&ltstd::string&gt _queue;
+    bool _ThreadRunning = false;
+    bool _Paused = false;
+  };</div>
+
+  template&ltint i&gt
+  class StaticLogger
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+<div class = "function"style = "display : inline-block; ">    static void attach(std::ostream* pOut) { _logger.attach(pOut); }</div>
+<div class = "function"style = "display : inline-block; ">    static void start() { _logger.start(); }</div>
+<div class = "function"style = "display : inline-block; ">    static bool running() { return _logger.running(); }</div>
+<div class = "function"style = "display : inline-block; ">    static void pause(bool doPause) { _logger.pause(doPause); }</div>
+<div class = "function"style = "display : inline-block; ">    static void paused() { return _logger.paused(); }</div>
+<div class = "function"style = "display : inline-block; ">    static void flush() { _logger.flush(); }</div>
+<div class = "function"style = "display : inline-block; ">    static void stop(const std::string& msg = "") { _logger.stop(msg); }</div>
+<div class = "function"style = "display : inline-block; ">    static void wait() { _logger.wait(); }</div>
+<div class = "function"style = "display : inline-block; ">    static void write(const std::string& msg) { _logger.write(msg); }</div>
+<div class = "function"style = "display : inline-block; ">    static void title(const std::string& msg, char underline = '-') { _logger.title(msg, underline); }</div>
+<div class = "function"style = "display : inline-block; ">    static Logger& instance() { return _logger; }</div>
+    StaticLogger(const StaticLogger&) = delete;
+    StaticLogger& operator=(const StaticLogger&) = delete;
+  private:
+    static Logger _logger;
+  };</div>
+
+  template&ltint i&gt
+  Logger StaticLogger&lti&gt::_logger;
+
+  using Rslt = Logging::StaticLogger&lt0&gt;
+  using Demo = Logging::StaticLogger&lt1&gt;
+  using Dbug = Logging::StaticLogger&lt2&gt;
+}
+#endif
+</pre> </body> </html>

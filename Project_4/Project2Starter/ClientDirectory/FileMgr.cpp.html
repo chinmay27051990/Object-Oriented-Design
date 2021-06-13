@@ -1,0 +1,74 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// FileMgr.cpp - find files matching specified patterns            //</div>
+<div class = "comment" style = "display : block; ">//               on a specified path                               //</div>
+<div class = "comment" style = "display : block; ">// ver 2.2                                                         //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2016       //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+
+#include "FileMgr.h"
+#include &ltiostream&gt
+
+using namespace FileManager;
+
+IFileMgr* FileMgr::pInstance_;
+
+IFileMgr* IFileMgr::getInstance()
+<div class = "function"style = "display : inline-block; ">{
+  return FileMgr::getInstance();
+}</div>
+
+#ifdef TEST_FILEMGR
+
+using namespace FileManager;
+
+struct FileHandler : IFileEventHandler
+{
+  void execute(const std::string& fileSpec)
+<div class = "function"style = "display : inline-block; ">  {
+    std::cout &lt< "\n  --   " << fileSpec;
+  }</div>
+};
+
+struct DirHandler : IDirEventHandler
+{
+  void execute(const std::string& dirSpec)
+<div class = "function"style = "display : inline-block; ">  {
+    std::cout &lt< "\n  ++ " << dirSpec;
+  }</div>
+};
+
+struct DoneHandler : IDoneEventHandler
+{
+  void execute(size_t numFilesProcessed)
+<div class = "function"style = "display : inline-block; ">  {
+    std::cout &lt< "\n\n  Processed " << numFilesProcessed << " files";
+  }</div>
+};
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  std::cout &lt< "\n  Testing FileMgr";
+  std::cout &lt< "\n =================";
+
+  std::string path = FileSystem::Path::getFullFileSpec("..");
+  IFileMgr* pFmgr = FileMgrFactory::create(path);
+
+  FileHandler fh;
+  DirHandler dh;
+  DoneHandler dnh;
+
+  pFmgr-&gtregForFiles(&fh);
+  pFmgr-&gtregForDirs(&dh);
+  pFmgr-&gtregForDone(&dnh);
+
+  pFmgr-&gtaddPattern("*.h");
+  pFmgr-&gtaddPattern("*.cpp");
+  <div class = "comment" style = "display : block; ">//pFmgr-&gtaddPattern("*.log");</div>
+
+  pFmgr-&gtsearch();
+
+  std::cout &lt< "\n\n";
+  return 0;
+}</div>
+#endif
+</pre> </body> </html>

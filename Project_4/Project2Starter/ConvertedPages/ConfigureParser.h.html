@@ -1,0 +1,138 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#ifndef CONFIGUREPARSER_H
+#define CONFIGUREPARSER_H
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">//  ConfigureParser.h - builds and configures parsers              //</div>
+<div class = "comment" style = "display : block; ">//  ver 3.3                                                        //</div>
+<div class = "comment" style = "display : block; ">//                                                                 //</div>
+<div class = "comment" style = "display : block; ">//  Lanaguage:     Visual C++ 2005                                 //</div>
+<div class = "comment" style = "display : block; ">//  Platform:      Dell Dimension 9150, Windows XP SP2             //</div>
+<div class = "comment" style = "display : block; ">//  Application:   Prototype for CSE687 Pr1, Sp06                  //</div>
+<div class = "comment" style = "display : block; ">//  Author:        Jim Fawcett, CST 2-187, Syracuse University     //</div>
+<div class = "comment" style = "display : block; ">//                 (315) 443-3948, jfawcett@twcny.rr.com           //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+  Module Operations: 
+  ==================
+  This module builds and configures parsers.  It builds the parser
+  parts and configures them with application specific rules and actions.
+
+  Public Interface:
+  =================
+  ConfigParseForCodeAnal config;
+  config.Build();
+  config.Attach(someFileName);
+
+  Build Process:
+  ==============
+  Required files
+    - ConfigureParser.h, ConfigureParser.cpp, Parser.h, Parser.cpp,
+      ActionsAndRules.h, ActionsAndRules.cpp,
+      Semiression.h, Semiression.cpp, tokenizer.h, tokenizer.cpp
+  Build commands (either one)
+    - devenv Project1HelpS06.sln
+    - cl /EHsc /DTEST_PARSER ConfigureParser.cpp parser.cpp \
+         ActionsAndRules.cpp \
+         Semiression.cpp tokenizer.cpp /link setargv.obj
+
+  Maintenance History:
+  ====================
+  ver 3.3 : 05 Nov 2017
+  - modified ConfigureParser to return false on opening empty file
+  ver 3.2 : 29 Oct 2016
+  - added check for Byte Order Mark (BOM) in attach(...)
+  ver 3.1 : 27 Aug 16
+  - added default rule and action to configuration
+  ver 3.0 : 23 Aug 16
+  - major changes for CodeAnalysis application
+  ver 2.1 : 19 Feb 16
+  - Added PrintFunction action to FunctionDefinition rule
+  ver 2.0 : 01 Jun 11
+  - Major revisions to begin building a strong code analyzer
+  ver 1.1 : 01 Feb 06
+  - cosmetic changes to ConfigureParser.cpp
+  ver 1.0 : 12 Jan 06
+  - first release
+*/</div>
+
+#include &ltfstream&gt
+#include "Parser.h"
+#include "ActionsAndRules.h"
+#include "../SemiExpression/Semi.h"
+#include "../Tokenizer/Toker.h"
+
+namespace CodeAnalysis
+{
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// build parser that writes its output to console</div>
+
+  class ConfigParseForCodeAnal : IBuilder
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+<div class = "function"style = "display : inline-block; ">    ConfigParseForCodeAnal() <div class = "comment" style = "display : block; ">/*: pIn(nullptr)*/</div> {};</div>
+    ~ConfigParseForCodeAnal();
+    bool Attach(const std::string& name, bool isFile = true);
+    Parser* Build();
+
+  private:
+    <div class = "comment" style = "display : block; ">// Builder must hold onto all the pieces</div>
+
+    <div class = "comment" style = "display : block; ">//std::ifstream* pIn = nullptr;</div>
+    Lexer::Toker* pToker;
+    Lexer::Semi* pSemi;
+    Parser* pParser;
+    Repository* pRepo;
+
+    <div class = "comment" style = "display : block; ">// add Rules and Actions</div>
+
+    BeginScope* pBeginScope = nullptr;
+    HandleBeginScope* pHandleBeginScope = nullptr;
+
+    EndScope* pEndScope = nullptr;
+    HandleEndScope* pHandleEndScope = nullptr;
+
+    PreprocStatement* pPreprocStatement = nullptr;
+    HandlePreprocStatement* pHandlePreprocStatement = nullptr;
+
+    NamespaceDefinition* pNamespaceDefinition = nullptr;
+    HandleNamespaceDefinition* pHandleNamespaceDefinition = nullptr;
+
+    ClassDefinition* pClassDefinition = nullptr;
+    HandleClassDefinition* pHandleClassDefinition = nullptr;
+
+    StructDefinition* pStructDefinition = nullptr;
+    HandleStructDefinition* pHandleStructDefinition = nullptr;
+
+    CppFunctionDefinition* pCppFunctionDefinition = nullptr;
+    HandleCppFunctionDefinition* pHandleCppFunctionDefinition = nullptr;
+    <div class = "comment" style = "display : block; ">//PrintFunction* pPrintFunction;</div>
+
+    CSharpFunctionDefinition* pCSharpFunctionDefinition = nullptr;
+    HandleCSharpFunctionDefinition* pHandleCSharpFunctionDefinition = nullptr;
+
+    ControlDefinition* pControlDefinition = nullptr;
+    HandleControlDefinition* pHandleControlDefinition = nullptr;
+
+    CppDeclaration* pCppDeclaration = nullptr;
+    HandleCppDeclaration* pHandleCppDeclaration = nullptr;
+
+    CSharpDeclaration* pCSharpDeclaration = nullptr;
+    HandleCSharpDeclaration* pHandleCSharpDeclaration = nullptr;
+
+    CppExecutable* pCppExecutable = nullptr;
+    HandleCppExecutable* pHandleCppExecutable = nullptr;
+
+    CSharpExecutable* pCSharpExecutable = nullptr;
+    HandleCSharpExecutable* pHandleCSharpExecutable = nullptr;
+
+    Default* pDefault = nullptr;
+    HandleDefault* pHandleDefault = nullptr;
+
+    <div class = "comment" style = "display : block; ">// prohibit copies and assignments</div>
+
+    ConfigParseForCodeAnal(const ConfigParseForCodeAnal&) = delete;
+    ConfigParseForCodeAnal& operator=(const ConfigParseForCodeAnal&) = delete;
+  };</div>
+}
+#endif
+</pre> </body> </html>

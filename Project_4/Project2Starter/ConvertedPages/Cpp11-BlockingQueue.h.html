@@ -1,0 +1,113 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#ifndef CPP11_BLOCKINGQUEUE_H
+#define CPP11_BLOCKINGQUEUE_H
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Cpp11-BlockingQueue.h - Thread-safe Blocking Queue        //</div>
+<div class = "comment" style = "display : block; ">// ver 1.1                                                   //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2015 //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+ * Package Operations:
+ * -------------------
+ * This package contains one thread-safe class: BlockingQueue&ltT&gt.
+ * Its purpose is to support sending messages between threads.
+ * It is implemented using C++11 threading constructs including 
+ * std::condition_variable and std::mutex.  The underlying storage
+ * is provided by the non-thread-safe std::queue&ltT&gt.
+ *
+ * Required Files:
+ * ---------------
+ * Cpp11-BlockingQueue.h
+ *
+ * Build Process:
+ * --------------
+ * devenv Cpp11-BlockingQueue.sln /rebuild debug
+ *
+ * Maintenance History:
+ * --------------------
+ * ver 1.1 : 26 Jan 2015
+ * - added copy constructor and assignment operator
+ * ver 1.0 : 03 Mar 2014
+ * - first release
+ *
+ * ToDo:
+ * -----
+ * - add move constructor and move assignment
+ */</div>
+
+#include &ltcondition_variable&gt
+#include &ltmutex&gt
+#include &ltthread&gt
+#include &ltqueue&gt
+#include &ltstring&gt
+#include &ltiostream&gt
+#include &ltsstream&gt
+
+template &lttypename T&gt
+<div class = "class"style = "display : inline-block; ">class BlockingQueue {
+public:
+<div class = "function"style = "display : inline-block; ">  BlockingQueue() {}</div>
+  BlockingQueue(const BlockingQueue&ltT&gt&);
+  BlockingQueue&ltT&gt& operator=(const BlockingQueue<T>&);
+  T deQ();
+  void enQ(const T& t);
+  size_t size();
+private:
+  std::queue&ltT&gt q_;
+  std::mutex mtx_;
+  std::condition_variable cv_;
+};</div>
+
+template&lttypename T&gt
+BlockingQueue&ltT&gt::BlockingQueue(const BlockingQueue<T>& bq) : q_(bq.q_)
+<div class = "function"style = "display : inline-block; ">{
+  <div class = "comment" style = "display : block; ">/* can't copy mutex or condition variable, so use default members */</div>
+}</div>
+
+template&lttypename T&gt
+BlockingQueue&ltT&gt& BlockingQueue<T>::operator=(const BlockingQueue<T>& bq)
+<div class = "function"style = "display : inline-block; ">{
+  if (this == &bq) return *this;
+  q_ = bq.q_;
+  <div class = "comment" style = "display : block; ">/* can't assign mutex or condition variable so use target's */</div>
+  return *this;
+}</div>
+
+template&lttypename T&gt
+T BlockingQueue&ltT&gt::deQ()
+<div class = "function"style = "display : inline-block; ">{
+  std::unique_lock&ltstd::mutex&gt l(mtx_);
+  if(q_.size() &gt 0)
+  {
+    T temp = q_.front();
+    q_.pop();
+    return temp;
+  }
+  <div class = "comment" style = "display : block; ">// may have spurious returns so loop on !condition</div>
+
+  while (q_.size() == 0)
+    cv_.wait(l, [this] () { return q_.size() &gt 0; });
+  T temp = q_.front();
+  q_.pop();
+  return temp;
+}</div>
+
+template&lttypename T&gt
+void BlockingQueue&ltT&gt::enQ(const T& t)
+<div class = "function"style = "display : inline-block; ">{
+  {
+    std::lock_guard&ltstd::mutex&gt l(mtx_);
+    q_.push(t);
+  }
+  cv_.notify_one();
+}</div>
+
+template&lttypename T&gt
+size_t BlockingQueue&ltT&gt::size()
+<div class = "function"style = "display : inline-block; ">{
+  std::lock_guard&ltstd::mutex&gt l(mtx_);
+  return q_.size();
+}</div>
+
+#endif
+</pre> </body> </html>

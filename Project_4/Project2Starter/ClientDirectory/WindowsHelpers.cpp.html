@@ -1,0 +1,87 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// WindowsHelper.cpp - small helper functions for using Windows API  //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                           //</div>
+<div class = "comment" style = "display : block; ">//-------------------------------------------------------------------//</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett (c) copyright 2015                                    //</div>
+<div class = "comment" style = "display : block; ">// All rights granted provided this copyright notice is retained     //</div>
+<div class = "comment" style = "display : block; ">//-------------------------------------------------------------------//</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2015                              //</div>
+<div class = "comment" style = "display : block; ">// Application: Several Projects, CSE687 - Object Oriented Design    //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187          //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                                //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+
+#define WIN32_LEAN_AND_MEAN
+
+#include &ltWindows.h&gt
+#include &ltstring&gt
+#include &ltwinsock2.h&gt
+#include "WindowsHelpers.h"
+
+using namespace WindowsHelpers;
+
+#pragma comment(lib, "Ws2_32.lib")
+
+std::string WindowsHelpers::wstringToString(const std::wstring& wstr)
+<div class = "function"style = "display : inline-block; ">{
+  std::string rtn;
+  for (auto ch : wstr)
+    rtn += static_cast&ltchar&gt(ch);
+  rtn += '\0';
+  return rtn;
+}</div>
+
+std::wstring WindowsHelpers::stringToWideString(const std::string& str)
+<div class = "function"style = "display : inline-block; ">{
+  std::wstring rtn;
+  for (auto ch : str)
+    rtn += ch;
+  rtn += static_cast&ltwchar_t&gt('\0');
+  return rtn;
+}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt get socket error message string &gt----------------------------</div>
+
+<div class = "function"style = "display : inline-block; ">std::string WindowsHelpers::GetLastMsg(bool WantSocketMsg) {
+
+  <div class = "comment" style = "display : block; ">// ask system what type of error occurred</div>
+
+  DWORD errorCode;
+  if (WantSocketMsg)
+    errorCode = WSAGetLastError();
+  else
+    errorCode = GetLastError();
+  if (errorCode == 0)
+    return "no error";
+
+  <div class = "comment" style = "display : block; ">// map errorCode into a system defined error string</div>
+
+  DWORD dwFlags =
+    FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER;
+  LPCVOID lpSource = NULL;
+  DWORD dwMessageID = errorCode;
+  DWORD dwLanguageId = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
+  LPSTR lpBuffer;
+  DWORD nSize = 0;
+  va_list *Arguments = NULL;
+
+  FormatMessage(
+    dwFlags, lpSource, dwMessageID, dwLanguageId,
+    (LPTSTR)&lpBuffer, nSize, Arguments
+    );
+
+  std::string _msg(lpBuffer);
+  LocalFree(lpBuffer);
+  return _msg;
+}</div>
+
+#ifdef TEST_WINDOWSHELPERS
+
+int main()
+<div class = "function"style = "display : inline-block; ">{
+
+}</div>
+
+#endif
+</pre> </body> </html>

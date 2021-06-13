@@ -1,0 +1,75 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// UnitTest.cpp - Demonstrate unit testing framework         //</div>
+<div class = "comment" style = "display : block; ">// ver 1.1                                                   //</div>
+<div class = "comment" style = "display : block; ">// --------------------------------------------------------- //</div>
+<div class = "comment" style = "display : block; ">// copyright © Jim Fawcett, 2012, 2013                       //</div>
+<div class = "comment" style = "display : block; ">// All rights granted provided that this notice is retained  //</div>
+<div class = "comment" style = "display : block; ">// --------------------------------------------------------- //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687-Object Oriented Design, Spring 2013   //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+ * This is what a test class should look like:
+ */</div>
+#include "UnitTest.h"
+#include &ltstring&gt
+#include &ltiostream&gt
+using namespace Test;
+
+ class TestStdStringClass : public TestBase&ltTestStdStringClass&gt
+<div class = "class"style = "display : inline-block; "> {
+ public:
+   bool TestConstruction()
+<div class = "function"style = "display : inline-block; ">   {
+     bool t1, t2;
+     std::string s1("this is a string");
+     t1 = (s1 == "this is a string");
+     std::string s2;
+     t2 = (s2.size() == 0);
+     return checkResult(t1 && t2, "TestConstruction");
+   }</div>
+   bool TestCopy()
+<div class = "function"style = "display : inline-block; ">   {
+     bool t1;
+     std::string orig = "a string";
+     std::string copy = orig;
+     t1 = (copy == orig && &copy != &orig);
+     return checkResult(t1, "TestCopy");
+   }</div>
+   bool TestWillThrowStdException()
+<div class = "function"style = "display : inline-block; ">   {
+     throw std::exception("TestWillThrowStdException");
+     return true;
+   }</div>
+   bool TestWillThrowStructuredException()
+<div class = "function"style = "display : inline-block; ">   {
+     int x=1, y=0;
+     x = x/y;
+     return true;
+   }</div>
+   bool test()  <div class = "comment" style = "display : block; ">// overriding inherited test method</div>
+<div class = "function"style = "display : inline-block; ">   {
+     bool t1, t2, t3, t4;
+     t1 = doTest(&TestStdStringClass::TestConstruction);
+     t2 = doTest(&TestStdStringClass::TestCopy);
+     t3 = doTest(&TestStdStringClass::TestWillThrowStdException);
+     t4 = doTest(&TestStdStringClass::TestWillThrowStructuredException);
+     return t1 && t2 && !t3 && !t4;
+   }</div>
+ private:
+   <div class = "comment" style = "display : block; ">// save here data needed in more than one test </div>
+ };</div>
+#ifdef TEST_UNITTEST
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  Title("Demonstrating UnitTest Package");
+
+  TestStdStringClass test;
+  if(test.test())
+    std::cout &lt< "\n  all tests passed";
+  else
+    std::cout &lt< "\n  one or more tests failed";
+  std::cout &lt< "\n\n";
+}</div>
+#endif
+</pre> </body> </html>

@@ -1,0 +1,125 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Message.h - defines message structure used in communication channel //</div>
+<div class = "comment" style = "display : block; ">// ver 1.2                                                             //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687-OnLine Object Oriented Design, Fall 2017        //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+*  Package Operations:
+*  -------------------
+*  This package defines an EndPoint struct and a Message class.  
+*  - Endpoints define a message source or destination with an address and port number.
+*  - Messages have an HTTP style structure with a set of attribute lines containing
+*    name:value pairs.
+*  - Message have a number of getter, setter methods for common attributes, and allow
+*    definition of other "custom" attributes.
+*
+*  Required Files:
+*  ---------------
+*  Message.h, Message.cpp, Utilities.h, Utilities.cpp
+*
+*  Maintenance History:
+*  --------------------
+*  ver 1.2 : 27 Mar 2018
+*  - added remove method to remove a message attribute, based on its key
+*  ver 1.1 : 25 Mar 2018
+*  - added method value(Key key) that returns value of attribute with key
+*  ver 1.0 : 03 Oct 2017
+*  - first release
+*
+*/</div>
+#include "../Utilities/Utilities.h"
+#include &ltstring&gt
+#include &ltunordered_map&gt
+#include &ltvector&gt
+
+namespace MsgPassingCommunication
+{
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// EndPoint struct</div>
+
+  struct EndPoint
+  {
+    using Address = std::string;
+    using Port = size_t;
+    Address address;
+    Port port;
+    EndPoint(Address anAddress = "", Port aPort = 0);
+    std::string toString();
+    static EndPoint fromString(const std::string& str);
+  };
+
+<div class = "function"style = "display : inline-block; ">  inline EndPoint::EndPoint(Address anAddress, Port aPort) : address(anAddress), port(aPort) {}</div>
+
+  inline std::string EndPoint::toString()
+<div class = "function"style = "display : inline-block; ">  {
+    return address + ":" + Utilities::Converter&ltsize_t&gt::toString(port);
+  }</div>
+
+  inline EndPoint EndPoint::fromString(const std::string& str)
+<div class = "function"style = "display : inline-block; ">  {
+    EndPoint ep;
+    size_t pos = str.find_first_of(':');
+    if (pos == str.length())
+      return ep;
+    ep.address = str.substr(0, pos);
+    std::string portStr = str.substr(pos + 1);
+    ep.port = Utilities::Converter&ltsize_t&gt::toValue(portStr);
+    return ep;
+  }</div>
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// Message class</div>
+  <div class = "comment" style = "display : block; ">// - follows the style, but not the implementation details of</div>
+  <div class = "comment" style = "display : block; ">//   HTTP messages</div>
+
+  class Message
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    using Key = std::string;
+    using Value = std::string;
+    using Attribute = std::string;
+    using Attributes = std::unordered_map&ltKey, Value&gt;
+    using Keys = std::vector&ltKey&gt;
+
+    Message();
+    Message(EndPoint to, EndPoint from);
+
+    Attributes& attributes();
+    void attribute(const Key& key, const Value& value);
+    Keys keys();
+    static Key attribName(const Attribute& attr);
+    static Value attribValue(const Attribute& attr);
+    bool containsKey(const Key& key);
+    Value value(const Key& key);
+    bool remove(const Key& key);
+
+    EndPoint to();
+    void to(EndPoint ep);
+    EndPoint from();
+    void from(EndPoint ep);
+    std::string name();
+    void name(const std::string& nm);
+    std::string command();
+    void command(const std::string& cmd);
+    std::string file();
+    void file(const std::string& fl);
+    size_t contentLength();
+    void contentLength(size_t ln);
+    void clear();
+    std::string toString();
+    static Message fromString(const std::string& src);
+    std::ostream& show(std::ostream& out = std::cout);
+
+  private:
+    Attributes attributes_;
+    <div class = "comment" style = "display : block; ">// name            : msgName</div>
+    <div class = "comment" style = "display : block; ">// command         : msg Command</div>
+    <div class = "comment" style = "display : block; ">// to              : dst EndPoint</div>
+    <div class = "comment" style = "display : block; ">// from            : src EndPoint</div>
+    <div class = "comment" style = "display : block; ">// file            : file name</div>
+    <div class = "comment" style = "display : block; ">// content-length  : body length in bytes</div>
+    <div class = "comment" style = "display : block; ">// custom attributes</div>
+  };</div>
+}
+</pre> </body> </html>

@@ -1,0 +1,7 @@
+﻿  Translater.cpp
+c:\users\kuldeep\desktop\project2starter\translater\csmessage.h(124): warning C4715: 'MsgPassingCommunication::CsMessage::value': not all control paths return a value
+  .NETFramework,Version=v4.0.AssemblyAttributes.cpp
+  Translater.obj : /DEBUG:FASTLINK is not supported when managed code is present; restarting link with /DEBUG:FULL
+  Translater.obj : MSIL module encountered; incremental linking is disabled for MSIL; performing full link
+Sockets.lib(Utilities.obj) : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
+  Translater.vcxproj -> C:\Users\Kuldeep\Desktop\Project2Starter\Debug\Translater.dll

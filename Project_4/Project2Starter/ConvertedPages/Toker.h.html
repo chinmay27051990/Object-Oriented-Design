@@ -1,0 +1,697 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Toker.cs  -  Tokenizer                                              //</div>
+<div class = "comment" style = "display : block; ">//              Reads words and punctuation symbols from a file stream //</div>
+<div class = "comment" style = "display : block; ">// ver 2.9                                                             //</div>
+<div class = "comment" style = "display : block; ">// Language:    C#, Visual Studio 10.0, .Net Framework 4.0             //</div>
+<div class = "comment" style = "display : block; ">// Platform:    Dell Precision T7400 , Win 7, SP 1                     //</div>
+<div class = "comment" style = "display : block; ">// Application: Pr#2 Help, CSE681, Fall 2011                           //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, CST 2-187, Syracuse University            //</div>
+<div class = "comment" style = "display : block; ">//              (315) 443-3948, jfawcett@twcny.rr.com                  //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+ * Module Operations
+ * =================
+ * Toker provides, via the class CToker, the facilities to tokenize ASCII
+ * text files.  That is, it composes the file's stream of characters into
+ * words and punctuation symbols.
+ * 
+ * CToker works with a private buffer of characters from an attached file.
+ * When the buffer is emptied CToker silently fills it again, so tokens
+ * are always available until the end of file is reached.  End of file is
+ * reported by tok = getTok() returning an empty token, e.g., tok == "".  
+ *
+ * Note: 
+ * The tokenizer does not properly handle quoted strings that start
+ * with the @ character to indicate \ should be treated as a character,
+ * not the beginning of an escape sequence.
+ * 
+ * Public Interface
+ * ================
+ * CToker toker = new CToker();       <div class = "comment" style = "display : block; ">// constructs CToker object</div>
+ * if(toker.openFile(fileName)) ...   <div class = "comment" style = "display : block; ">// attaches toker to specified file</div>
+ * if(toker.openString(str)) ...      <div class = "comment" style = "display : block; ">// attaches toker to specified string</div>
+ * toker.close();                     <div class = "comment" style = "display : block; ">// closes stream</div>
+ * string tok = toker.getTok();       <div class = "comment" style = "display : block; ">// extracts next token from stream</div>
+ * string tok = toker.peekNextTok();  <div class = "comment" style = "display : block; ">// peeks but does not extract</div>
+ * toker.pushBack(tok);               <div class = "comment" style = "display : block; ">// puts token back on stream</div>
+ * 
+ */</div>
+<div class = "comment" style = "display : block; ">/*
+ * Build Process
+ * =============
+ * Required Files:
+ *   Toker.cs
+ * 
+ * Compiler Command:
+ *   csc /target:exe /define:TEST_CTOKER CToker.cs
+ * 
+ * Maintenance History
+ * ===================
+ * ver 2.9 : 12 Feb 18
+ * - fixed bug in extractComment that caused failure to detect tokens
+ *   after processing a line ending with a C++ style comment
+ * ver 2.8 : 14 Oct 14
+ * - fixed bug in extract that caused tokenizing of multiline string
+ *   to loop endlessly
+ * - reset lineCount in Attach function
+ * ver 2.7 : 21 Sep 14
+ * - made returning comments optional
+ * - fixed handling of @"..." strings
+ * ver 2.6 : 19 Sep 14
+ * - stopped returning comments in getTok function
+ * ver 2.5 : 14 Aug 14
+ * - added patch to handle @"..." string format
+ * ver 2.4 : 24 Sep 11
+ * - added a thrown exception if extract encounters a string with the 
+ *   substring "@.  This should be handled but raises two many changes
+ *   to fix immediately.
+ * ver 2.3 : 05 Sep 11
+ * - fixed bug collecting C Comments in eatCComment()
+ * - fixed bug where token contained embedded newline, now broken
+ *   into seperate tokens
+ * - fixed ackward display formatting
+ * - replaced untyped ArrayList with generic List&ltstring&gt 
+ * - added lineCount property
+ * ver 2.2 : 10 Jun 08
+ * - added IsGrammarPunctuation to make tokenizer treat underscore
+ *   as an ASCII char rather than a punctuator and used that in
+ *   fillBuffer and eatASCII
+ * ver 2.1 : 14 Jun 05
+ * - fixed newline handling bug in buffer filling routines:
+ *   readLine, getLine, fillbuffer
+ * - fixed newline handling bug in extractComment
+ * ver 2.0 : 30 May 05
+ * - added extraction of comments and quotes as tokens
+ * - added openString(...) to attach tokenizer to string
+ * ver 1.1 : 21 Sep 04
+ * - added toker.close() in test stub
+ * - added processing for all command line args
+ * ver 1.0 : 31 Aug 03
+ * - first release
+ * 
+ * Planned Changes:
+ * ----------------
+ * - Handle quoted strings that use the @"\X" construct to allow omitting 
+ *   double \\ when \ should be treated like a character, not the beginning
+ *   of an escape sequence. 
+ * - Improve performance by change lineRemainder from string to StringBuilder
+ *   to avoid a lot of copies.
+ */</div>
+<div class = "comment" style = "display : block; ">//</div>
+using System;
+using System.IO;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace CStoker
+{
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// class CToker - tokenizer</div>
+
+  class CToker
+<div class = "class"style = "display : inline-block; ">  {
+    private TextReader ts = null;            <div class = "comment" style = "display : block; ">// source of tokens</div>
+    private List&ltstring&gt tokBuffer = null;   <div class = "comment" style = "display : block; ">// intermediate token store</div>
+    private string lineRemainder;            <div class = "comment" style = "display : block; ">// unprocessed line fragment</div>
+
+    <div class = "comment" style = "display : block; ">//----&lt return comments? property &gt----------------------------------</div>
+
+    public bool returnComments
+    {
+      get; set;
+    }
+    <div class = "comment" style = "display : block; ">//----&lt line count property &gt----------------------------------------</div>
+
+    public int lineCount
+    {
+      get;
+      private set;
+    }
+    <div class = "comment" style = "display : block; ">//----&lt constructor &gt------------------------------------------------</div>
+
+    public CToker()
+<div class = "function"style = "display : inline-block; ">    {
+      tokBuffer = new List&ltstring&gt();
+      lineCount = 0;
+      returnComments = false;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt opens file stream for tokenizing &gt---------------------------</div>
+
+    public bool openFile(string fileName)
+<div class = "function"style = "display : inline-block; ">    {
+      lineCount = 0;
+      lineRemainder = "";
+      try
+      {
+        ts = new StreamReader(fileName);
+      }
+      catch(Exception)
+      {
+        return false;
+      }
+      return true;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt opens string for tokenizing &gt------------------------------</div>
+
+    public bool openString(string source)
+<div class = "function"style = "display : inline-block; ">    {
+      lineCount = 0;
+      lineRemainder = "";
+      try
+      {
+        ts = new StringReader(source);
+      }
+      catch(Exception)
+      {
+        return false;
+      }
+      return true;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt closes filestream &gt------------------------------------------</div>
+
+    public void close()
+<div class = "function"style = "display : inline-block; ">    {
+      ts.Close();
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt remove return character from StringBuilder &gt-----------------</div>
+
+    void removeReturn(ref StringBuilder tok)
+<div class = "function"style = "display : inline-block; ">    {
+      for (int i = 0; i &lt tok.Length; ++i)
+      {
+        <div class = "comment" style = "display : block; ">// stream readers tend to hand back strings with '\r' which</div>
+        <div class = "comment" style = "display : block; ">// make processing more complicated, so we remove them</div>
+        if (tok[i] == '\r')
+          tok.Remove(i, 1);
+      }
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt remove return character from string &gt------------------------</div>
+
+    string removeReturn(string tok)
+<div class = "function"style = "display : inline-block; ">    {
+      StringBuilder temp = new StringBuilder();
+      for (int i = 0; i &lt tok.Length; ++i)
+      {
+        if (tok[i] != '\r')
+          temp.Append(tok[i]);
+      }
+      return temp.ToString();
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt read a single line, retaining newline character &gt------------</div>
+
+    public string readLine()
+<div class = "function"style = "display : inline-block; ">    {
+      StringBuilder temp = new StringBuilder();
+      while(true)
+      {
+        int i = ts.Read();
+        if ((char)i == '\n')
+          lineCount++;
+        if(i == -1)
+        {
+          return temp.ToString();
+        }
+        char ch = (char)i;
+        temp.Append(ch);
+        if(ch == '\n')
+          break;
+      }
+      removeReturn(ref temp);
+      string outstr = temp.ToString();
+      return outstr;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt extracts line of text for tokenizing &gt-----------------------</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//  Passes back a line to process for tokens as a side effect</div>
+    <div class = "comment" style = "display : block; ">//  through the out string parameter.</div>
+    <div class = "comment" style = "display : block; ">//  - if line has a leading comment or quote it is extracted and </div>
+    <div class = "comment" style = "display : block; ">//    saved in tokBuffer and remaining string is passed back</div>
+    <div class = "comment" style = "display : block; ">//  - if line has a trailing comment or quote the line fragment</div>
+    <div class = "comment" style = "display : block; ">//    at the front is passed back after saving the rest of the</div>
+    <div class = "comment" style = "display : block; ">//    line for later processing</div>
+    <div class = "comment" style = "display : block; ">//  - always passes back a line to process until end of file</div>
+    <div class = "comment" style = "display : block; ">//  - returns true if end of file has not been reached</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    bool getLine(out string line)
+<div class = "function"style = "display : inline-block; ">    {
+      do
+      {
+        if(lineRemainder == "")  <div class = "comment" style = "display : block; ">// previously saved line fragment is empty</div>
+        {
+          try
+          {
+            lineRemainder = readLine();
+
+            if(lineRemainder == null || lineRemainder == "")
+            {
+              line = "";
+              return false;     <div class = "comment" style = "display : block; ">// end of file</div>
+            }
+          }
+          catch(Exception except)
+          {
+            line = except.Message.ToString();
+            return false;       <div class = "comment" style = "display : block; ">// error reading file</div>
+          }
+        }
+        line = extract(ref lineRemainder);
+        <div class = "comment" style = "display : block; ">//---- added 14 Oct 14</div>
+        if (line == "")
+          lineRemainder = lineRemainder + readLine();
+        <div class = "comment" style = "display : block; ">//---- end added</div>
+
+        <div class = "comment" style = "display : block; ">// keep extracting until there is a line to tokenize</div>
+        <div class = "comment" style = "display : block; ">// or tokBuffer has contents</div>
+      } while(line == "" && tokBuffer.Count == 0);
+      return true;
+    }</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//----&lt extract tokens and comments &gt------------------------------</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//  Extract the first of:</div>
+    <div class = "comment" style = "display : block; ">//    C++ comments, C comments, double quotes, single quotes5</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    string extract(ref string lineRemainder)
+<div class = "function"style = "display : inline-block; ">    {
+      char[] whiteChars = { ' ', '\r', '\t', '\f' };  <div class = "comment" style = "display : block; ">// newlines are tokens</div>
+      lineRemainder = lineRemainder.TrimStart(whiteChars);
+
+      int posErr = lineRemainder.IndexOf("@\"");
+      if (posErr != -1)
+        lineRemainder = mapToOldDoubleQuoteStyle(lineRemainder);
+
+      int posCppComm = lineRemainder.IndexOf("<div class = "comment" style = "display : block; ">//");</div>
+      int posCComm   = lineRemainder.IndexOf("<div class = "comment" style = "display : block; ">/*");
+      int posDQuote  = lineRemainder.IndexOf('\"');
+      int posSQuote  = lineRemainder.IndexOf('\'');
+
+      <div class = "comment" style = "display : block; ">// find first of the above</div>
+
+      int[] positions = { posCppComm, posCComm, posDQuote, posSQuote };
+      for(int i=0; i&ltpositions.Length; ++i)
+        if(positions[i] == -1)
+          positions[i] = Int32.MaxValue;
+      Array.Sort(positions);
+      
+      if(positions[0] == Int32.MaxValue)    <div class = "comment" style = "display : block; ">// nothing to extract</div>
+      {
+        string retStr = lineRemainder;
+        lineRemainder = "";
+        return retStr;
+      }
+      if (posCppComm == positions[0] || posCComm == positions[0])
+        return extractComment(ref lineRemainder);
+      if(posDQuote == positions[0])
+        return extractDQuote(ref lineRemainder);
+      if(posSQuote == positions[0])
+        return extractSQuote(ref lineRemainder);
+      throw new Exception("extract failed");
+    }</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//----&lt convert @ style string to old style &gt--------------------</div>
+
+    string mapToOldDoubleQuoteStyle(string str)
+<div class = "function"style = "display : inline-block; ">    {
+      bool foundNewStyle = false;
+      System.Text.StringBuilder temp = new StringBuilder();
+      int i;
+      for (i = 0; i &lt str.Length; ++i)
+      {
+        if (str[i] == '@')
+        {
+          foundNewStyle = true;
+          continue;
+        }
+        temp.Append(str[i]);
+        if (foundNewStyle)
+        {
+          if (str[i] == '\\')
+            temp.Append('\\');
+          if (str[i] == '"' && str[i - 1] != '\\' && str[i-1] != '@')
+            break;
+        }
+      }
+      for (int j = i + 1; j &lt str.Length; ++j)
+        temp.Append(str[j]);
+      return temp.ToString();
+    }</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//----&lt extract double quote &gt-------------------------------------</div>
+
+    string extractDQuote(ref string lineRemainder)
+<div class = "function"style = "display : inline-block; ">    {
+      string retStr = "";
+      int pos = lineRemainder.IndexOf('\"');
+      if(pos == 0)
+      {
+        StringBuilder quote = new StringBuilder();
+        quote.Append('\"');
+        for(int i=1; i&ltlineRemainder.Length; ++i)
+        {
+          quote.Append(lineRemainder[i]);
+          if(lineRemainder[i] == '\"')
+          {
+            if(lineRemainder[i-1] != '\\' || lineRemainder[i-2] == '\\')
+            {
+              tokBuffer.Add(quote.ToString());
+              lineRemainder = lineRemainder.Remove(0,i+1);
+              return "";
+            }
+          }
+        }
+      }
+      else
+      {
+        retStr = lineRemainder.Remove(pos,lineRemainder.Length-pos);
+        lineRemainder = lineRemainder.Remove(0,pos);
+        return retStr;
+      }
+      <div class = "comment" style = "display : block; ">//throw new Exception("extractDQuote failed");</div>
+      return retStr;
+    }</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//----&lt extract single quote &gt-------------------------------------</div>
+
+    string extractSQuote(ref string lineRemainder)
+<div class = "function"style = "display : inline-block; ">    {
+      string retStr;
+      int pos = lineRemainder.IndexOf('\'');
+      if(pos == 0)
+      {
+        StringBuilder quote = new StringBuilder();
+        quote.Append('\'');
+        for(int i=1; i&ltlineRemainder.Length; ++i)
+        {
+          quote.Append(lineRemainder[i]);
+          if(lineRemainder[i] == '\'')
+          {
+            if(lineRemainder[i-1] != '\\' || lineRemainder[i-2] == '\\')
+            {
+              tokBuffer.Add(quote.ToString());
+              lineRemainder = lineRemainder.Remove(0,i+1);
+              return "";
+            }
+          }
+        }
+      }
+      else
+      {
+        retStr = lineRemainder.Remove(pos,lineRemainder.Length-pos);
+        lineRemainder = lineRemainder.Remove(0,pos);
+        return retStr;
+      }
+      throw new Exception("extractSQuote failed");
+    }</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//----&lt extract comment &gt------------------------------------------</div>
+
+    string extractComment(ref string lineRemainder)
+<div class = "function"style = "display : inline-block; ">    {
+      char[] WhiteChars = { ' ', '\t', '\r' };
+      string line;
+      int pos = lineRemainder.IndexOf("<div class = "comment" style = "display : block; ">//");</div>
+      if(pos == 0)                          <div class = "comment" style = "display : block; ">// whole line is C++ comment</div>
+      {
+        if(lineRemainder[lineRemainder.Length-1] == '\n')
+        {
+          lineRemainder = lineRemainder.Remove(lineRemainder.Length-1,1);
+          tokBuffer.Add(lineRemainder);
+          lineRemainder = "";
+          return "\n";
+        }
+        else
+        {
+          tokBuffer.Add(lineRemainder);
+          lineRemainder = "";
+        }
+        return lineRemainder;
+      }
+      if(pos &gt -1)                          <div class = "comment" style = "display : block; ">// end of line is C++ comment</div>
+      {
+        int posEnd = lineRemainder.IndexOf("\n");
+        line = lineRemainder.Remove(pos, posEnd - pos).TrimEnd(WhiteChars);
+        lineRemainder = lineRemainder.Remove(0, pos);
+        <div class = "comment" style = "display : block; ">//////////////////////////////////////////////////////////////////////////////////////////////</div>
+        <div class = "comment" style = "display : block; ">// This code appears to be responsible for a bug in handling end of line C++ style comments</div>
+        <div class = "comment" style = "display : block; ">//    line = lineRemainder.Remove(pos, lineRemainder.Length - pos).TrimEnd(WhiteChars);</div>
+        <div class = "comment" style = "display : block; ">//    lineRemainder = lineRemainder.Remove(0,pos);</div>
+        <div class = "comment" style = "display : block; ">// It will stay here until I'm confident that the Toker now works correctly</div>
+        return line;
+      }
+      pos = lineRemainder.IndexOf("<div class = "comment" style = "display : block; ">/*");    <div class = "comment" style = "display : block; ">// line contains C comment</div>
+      if(pos &gt -1)
+      {
+        if(pos == 0)
+        {
+          eatCComment();
+          return "";
+        }
+        else
+        {
+          string retStr = lineRemainder.Remove(pos,lineRemainder.Length-pos);
+          lineRemainder = lineRemainder.Remove(0,pos);
+          return retStr;
+        }
+      }
+      <div class = "comment" style = "display : block; ">// if we get here there is no comment in line</div>
+
+      line = lineRemainder;
+      lineRemainder = "";
+      return line;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt eat C comment - may consume more lines &gt---------------------</div>
+
+    void eatCComment()
+<div class = "function"style = "display : inline-block; ">    {
+      List&ltchar&gt comment = new List<char>();
+      while(true)
+      {
+        int pos = lineRemainder.IndexOf("*/</div>");
+        for (int i = 0; i &lt lineRemainder.Length; ++i)
+        {
+          if(pos != i)  <div class = "comment" style = "display : block; ">// not at end of comment</div>
+            comment.Add(lineRemainder[i]);
+          else
+          { <div class = "comment" style = "display : block; ">// end of comment</div>
+            comment.Add(lineRemainder[i]);
+            comment.Add(lineRemainder[i + 1]);
+            string temp = new string(comment.ToArray());
+            tokBuffer.Add(temp);
+            lineRemainder = lineRemainder.Remove(0,i+2);
+            return;
+          }
+        }
+        <div class = "comment" style = "display : block; ">// end of lineRemainder</div>
+        lineRemainder = ts.ReadLine();  <div class = "comment" style = "display : block; ">// ReadLine discards newline</div>
+        lineCount++;
+        if(lineRemainder == null)
+        {
+          throw new Exception("encountered eof while processing comment");
+        }
+        lineRemainder = lineRemainder + "\n";  <div class = "comment" style = "display : block; ">// replace newline</div>
+        lineRemainder = removeReturn(lineRemainder);
+      }
+    }</div>
+    <div class = "comment" style = "display : block; ">//</div>
+    <div class = "comment" style = "display : block; ">//----&lt treat underscore as ASCII &gt----------------------------------</div>
+
+    bool IsGrammarPunctuation(char ch)
+<div class = "function"style = "display : inline-block; ">    {
+      if (ch == '_')
+        return false;
+      if (Char.IsPunctuation(ch))
+        return true;
+      return false;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt consumes ASCII characters from stream &gt----------------------</div>
+
+    string eatAscii(ref string tok)
+<div class = "function"style = "display : inline-block; ">    {
+      string retStr = tok;
+      for(int i=0; i&lttok.Length; ++i)
+      {
+        if(IsGrammarPunctuation(tok[i]) || Char.IsSymbol(tok[i]))
+        {
+          retStr = tok.Remove(i,tok.Length-i);
+          tok = tok.Remove(0,i);
+          return retStr;
+        }
+      }
+      tok = "";
+      return retStr;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt consumes a single punctuator from stream &gt-------------------</div>
+
+    string eatPunctuationChar(ref string tok)
+<div class = "function"style = "display : inline-block; ">    {
+      string retStr = tok.Remove(1,tok.Length-1);
+      tok = tok.Remove(0,1);
+      return retStr;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt fills internal buffer with tokens &gt--------------------------</div>
+
+    bool fillBuffer()
+<div class = "function"style = "display : inline-block; ">    {
+      string line;
+      if(!this.getLine(out line))
+        return false;             <div class = "comment" style = "display : block; ">// end of token source</div>
+      if(line == "")
+        return (tokBuffer.Count &gt 0);
+      char [] delim = { ' ', '\t', '\f' };
+      string [] toks = line.Split(delim);
+      foreach(string tok in toks)
+      {
+        string temp = tok;
+        while(temp.Length &gt 0)
+        {
+          if(IsGrammarPunctuation(temp[0]) || Char.IsSymbol(temp[0]))
+          {
+            string punc = this.eatPunctuationChar(ref temp);
+            tokBuffer.Add(punc);
+          }
+          else
+          {
+            string ascii = this.eatAscii(ref temp);
+            tokBuffer.Add(ascii);
+          }
+        }
+      }
+      return true;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt extracts tokens from internal buffer, filling if needed &gt----</div>
+
+    public string getTok()
+<div class = "function"style = "display : inline-block; ">    {
+      char[] trimChar = { '\n' };
+      string tok = peekNextTok();
+      if(tok != "")
+        tokBuffer.RemoveAt(0);
+      if (tok.IndexOf('\n') == tok.Length - 1 && tok.Length &gt 1)
+      {
+        tok = tok.TrimEnd(trimChar);
+        tokBuffer.Insert(0, "\n");
+      }
+      if (returnComments)
+        return tok;
+
+      while(true)  <div class = "comment" style = "display : block; ">// skip comments</div>
+      {
+        if(tok.Length &gt 1 && tok[0] == '/' && (tok[1] == '*' || tok[1] == '/'))
+          tok = getTok();
+        else
+          break;
+      }
+      return tok;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt look at next token without extracting &gt----------------------</div>
+
+    public string peekNextTok()
+<div class = "function"style = "display : inline-block; ">    {
+      if(tokBuffer.Count == 0)
+        if(!fillBuffer())
+          return "";
+      string tok = (string)tokBuffer[0];
+      return tok;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt put token back into tokBuffer &gt------------------------------</div>
+
+    public void pushBack(string tok)
+<div class = "function"style = "display : inline-block; ">    {
+      tokBuffer.Insert(0,tok);
+    }</div>
+
+    <div class = "comment" style = "display : block; ">//----&lt test stub &gt--------------------------------------------------</div>
+
+#if(TEST_TOKER)
+
+    [STAThread]
+    static void Main(string[] args)
+<div class = "function"style = "display : inline-block; ">    {
+      Console.Write("\n  Testing CToker - Tokenizer ");
+      Console.Write("\n ============================\n");
+
+      try
+      {
+        CToker toker = new CToker();
+        <div class = "comment" style = "display : block; ">//toker.returnComments = true;</div>
+
+        if (args.Length == 0)
+        {
+          Console.Write("\n  Please enter name of file to tokenize\n\n");
+          return;
+        }
+        foreach (string file in args)
+        {
+          string msg1;
+          if (!toker.openFile(file))
+          {
+            msg1 = "Can't open file " + file;
+            Console.Write("\n\n  {0}", msg1);
+            Console.Write("\n  {0}", new string('-', msg1.Length));
+          }
+          else
+          {
+            msg1 = "Processing file " + file;
+            Console.Write("\n\n  {0}", msg1);
+            Console.Write("\n  {0}", new string('-', msg1.Length));
+            string tok = "";
+            while ((tok = toker.getTok()) != "")
+              if (tok != "\n")
+                Console.Write("\n{0}", tok);
+            toker.close();
+          }
+        }
+        Console.Write("\n");
+        <div class = "comment" style = "display : block; ">//</div>
+        string[] msgs = new string[12];
+        msgs[0] = "abc";
+        msgs[11] = "-- \"abc def\" --";
+        msgs[1] = "string with double quotes \"first quote\""
+                  + " and \"second quote\" but no more";
+        msgs[2] = "string with single quotes \'1\' and \'2\'";
+        msgs[3] = "string with quotes \"first quote\" and \'2\'";
+        msgs[4] = "string with C comments <div class = "comment" style = "display : block; ">/* first */</div> and <div class = "comment" style = "display : block; ">/*second*/</div> but no more";
+        msgs[10] = @"string with @ \\stuff";
+        msgs[5] = "<div class = "comment" style = "display : block; ">/* single C comment */</div>";
+        msgs[6] = " -- <div class = "comment" style = "display : block; ">/* another single comment */</div> --";
+        msgs[7] = "<div class = "comment" style = "display : block; ">// a C++ comment\n";</div>
+        msgs[8] = "<div class = "comment" style = "display : block; ">// another C++ comment\n";</div>
+        msgs[9] = "<div class = "comment" style = "display : block; ">/*\n *\n *\n */</div>";
+
+        foreach (string msg in msgs)
+        {
+          if (!toker.openString(msg))
+          {
+            string msg2 = "Can't open string for reading";
+            Console.Write("\n\n  {0}", msg2);
+            Console.Write("\n  {0}", new string('-', msg2.Length));
+          }
+          else
+          {
+            string msg2 = "Processing \"" + msg + "\"";
+            Console.Write("\n\n  {0}", msg2);
+            Console.Write("\n  {0}", new string('-', msg2.Length));
+            string tok = "";
+            while ((tok = toker.getTok()) != "")
+            {
+              if (tok != "\n")
+                Console.Write("\n{0}", tok);
+              else
+                Console.Write("\nnewline");
+            }
+            toker.close();
+          }
+        }
+        Console.Write("\n\n");
+      }
+      catch (Exception ex)
+      {
+        Console.Write("\n\n  token \"{0}\" has embedded newline\n\n", ex.Message);
+      }
+    }</div>
+#endif
+  }</div>
+}
+</pre> </body> </html>

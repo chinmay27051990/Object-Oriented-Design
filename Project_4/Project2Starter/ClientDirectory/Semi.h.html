@@ -1,0 +1,118 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>﻿#ifndef SEMI_H
+#define SEMI_H
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Semi.h - Collects groups of tokens that are useful for          //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0   grammatical analysis                                  //</div>
+<div class = "comment" style = "display : block; ">//                                                                 //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2019       //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+ * Package Operations:
+ * -------------------
+ * - This package contains a Semi class that implements ITokenCollection
+ *   interface.  It also contains a Factory class that creates instances
+ *   of Semi.
+ * - Semiressions are collections of tokens that are useful for 
+ *   detecting specific grammatical constructs.  It is important that
+ *   each instance of Semi contains all tokens necessary to make a 
+ *   decision about a grammatical construct, e.g., is this a class?
+ * - It is also important that each Semi instance does not contain 
+ *   tokens relevant for more than one detection.
+ * - This code demonstrates how to build a semi-expression collector,
+ *   using the state-based tokenizer. 
+ * 
+ * Required Files:
+ * ---------------
+ * Semi.h, Semi.cpp,
+ * ITokenCollection.h, 
+ * Toker.h, Toker.cpp
+ * 
+ * Maintenance History
+ * -------------------
+ * ver 1.0 : 09 Jan 2019
+ * - first release
+ * 
+ * Note:
+ * - This is a redesign of the Semi package you will find in the Parser folder
+ *   in the Repository.
+ */</div>
+
+#include &ltstring&gt
+#include &ltvector&gt
+#include "ITokenCollection.h"
+#include "../Tokenizer/Toker.h"
+
+namespace Lexer
+{
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// Semi class</div>
+  <div class = "comment" style = "display : block; ">// - collects tokens from Lexer::Toker.</div>
+  <div class = "comment" style = "display : block; ">// - terminates collection on collecting the special tokens:</div>
+  <div class = "comment" style = "display : block; ">//     ";", "{", "}", and "\n" when the first character is "#"</div>
+  <div class = "comment" style = "display : block; ">// - It implements the IEnumerable interface, which is a contract</div>
+  <div class = "comment" style = "display : block; ">//   to return an Enumerater object that foreach uses to step through</div>
+  <div class = "comment" style = "display : block; ">//   items in a collection.</div>
+  <div class = "comment" style = "display : block; ">// - It also implements the ITokenCollection interface that the</div>
+  <div class = "comment" style = "display : block; ">//   parser will use to extract token sequences for rule-checking.</div>
+
+  class Semi : public ITokenCollection
+<div class = "class"style = "display : inline-block; ">  {
+  private:
+    TokColl toks;  <div class = "comment" style = "display : block; ">// private collection of tokens</div>
+    Toker* pToker_ = nullptr;
+
+  public:
+    Semi(bool createToker = false);
+    Semi(std::vector&ltToken&gt list, bool createToker = false);
+    virtual ~Semi();
+
+    virtual Toker* getToker() override;
+    virtual void setToker(Toker* pToker) override;
+    virtual void addRange(TokColl coll) override;
+    virtual bool open(const std::string& source) override;
+    virtual void close() override;
+    virtual size_t size() const override;
+    virtual std::string ToString() override;
+    virtual size_t lineCount() override;
+    bool isTerminator(Token tok);
+    virtual void trim() override;
+    virtual bool contains(Token tok) const override;
+    <div class = "comment" style = "display : block; ">// note find functions return index reference of founct token position</div>
+    virtual bool find(Token tok, size_t& index, size_t offset = 0) const override;   <div class = "comment" style = "display : block; ">// find tok if in semi</div>
+    virtual bool findLast(Token tok, size_t&index) const override;
+    virtual Token predecessor(Token tok) override;
+    virtual Token last() const override;
+    virtual bool hasSequence(TokColl tokSeq) override;
+    void fold();
+    virtual bool get() override;
+    virtual void clone(const ITokenCollection& tc, size_t offset = 0) override;
+    virtual ITokenCollection* clone() const override;
+    virtual Token& operator[](size_t i) override;
+    virtual Token operator[](size_t i) const override;
+    virtual iterator begin() override;
+    virtual iterator end() override;
+    virtual ITokenCollection* add(Token token) override;
+    virtual bool remove(size_t index) override;
+    virtual bool remove(Token tok) override;
+    virtual void clear() override;
+    virtual bool isDone() override;
+    virtual bool insert(size_t n, Token tok) override;
+    virtual bool hasTerminator() override;
+    virtual std::string show() const override;
+    virtual bool isComment(Token tok) override;
+  };</div>
+
+  class Factory
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    static ITokenCollection* create(bool createToker = false)
+<div class = "function"style = "display : inline-block; ">    {
+      Semi* rtn = new Semi(createToker);
+      return rtn;
+    }</div>
+  };</div>
+}
+
+#endif
+</pre> </body> </html>

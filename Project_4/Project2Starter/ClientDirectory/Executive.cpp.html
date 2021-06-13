@@ -1,0 +1,92 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">//  Executive.cpp - Starter code for Project #2                    //</div>
+<div class = "comment" style = "display : block; ">//  ver 1.0                                                        //</div>
+<div class = "comment" style = "display : block; ">//  Language:      Visual C++, Visual Studio 2015                  //</div>
+<div class = "comment" style = "display : block; ">//  Platform:      Dell XPS 8920, Windows 10                       //</div>
+<div class = "comment" style = "display : block; ">//  Application:   Prototype for CSE687 - OOD Projects             //</div>
+<div class = "comment" style = "display : block; ">//  Author:        Ammar Salman, CST 4-187, Syracuse University    //</div>
+<div class = "comment" style = "display : block; ">//                                                                 //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+
+#include &ltiostream&gt
+#include &ltstring&gt
+#include "../Utilities/Utilities.h"
+#include "../Tokenizer/Toker.h"
+#include "../SemiExpression/Semi.h"
+#include "Parser.h"
+#include "ActionsAndRules.h"
+#include "ConfigureParser.h"
+#include "Executive.h"
+#include "../Loader/Loader.h"
+#include &ltconio.h&gt 
+#include "../Converter/Converter.h"
+#include "../Display/Display.h"
+
+using namespace Lexer;
+using namespace Utilities;
+using Demo = Logging::StaticLogger&lt1&gt;
+
+#include "../FileSystem/FileSystem.h"
+#include &ltqueue&gt
+#include &ltstring&gt
+#include "Executive.h"
+#define Util StringHelper
+
+using namespace PublisherComm;
+
+CodePublisher::CodePublisher()
+<div class = "function"style = "display : inline-block; ">{
+
+}</div>
+
+CodePublisher::~CodePublisher()
+<div class = "function"style = "display : inline-block; ">{
+
+}</div>
+
+<div class = "function"style = "display : inline-block; "> std::vector&ltstd::string&gt CodePublisher::getconfiles() {
+	return convertedfiles;
+}</div>
+
+
+std::vector&ltstd::string&gt CodePublisher::publish(int argc, char** argv)   
+<div class = "function"style = "display : inline-block; ">{
+	
+	try 
+	{
+		convertedfiles.clear();
+		std::vector&ltstd::string&gt filePaths;
+		std::vector&ltstd::string&gt fileNames;
+		std::vector&ltstd::string&gt processedFiles;
+		Loader ld;
+		Conversion conv;
+		filePaths = ld.filenameDisplay(argc, argv);
+		if (filePaths.empty())
+		{
+			std::cout &lt< "\nNo files matched the given Regex!\n";
+			
+		}
+		std::string tmp;
+
+		fileNames = ld.onlyfileNamesreturn();
+		processedFiles = conv.filetoString(filePaths, fileNames);
+		<div class = "comment" style = "display : block; ">//Display disp;</div>
+		
+		for (auto file : fileNames) {
+			tmp = FileSystem::Path::getFullFileSpec(".");
+			tmp = FileSystem::Path::getFullFileSpec("../ConvertedPages/" + file + ".html");
+			tmp = FileSystem::Path::getName(tmp);
+			convertedfiles.push_back(tmp);
+		}
+
+		return convertedfiles;
+		
+	}
+	catch (...) 
+	{
+		std::cout &lt< "Error";
+	}
+}</div>
+
+</pre> </body> </html>

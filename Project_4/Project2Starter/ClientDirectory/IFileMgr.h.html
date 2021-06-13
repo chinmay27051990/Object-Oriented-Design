@@ -1,0 +1,46 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// IFileMgr.h - interface for finding files matching specified     //</div>
+<div class = "comment" style = "display : block; ">//              patterns on a specified path                       //</div>
+<div class = "comment" style = "display : block; ">// ver 3.0                                                         //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, MidtermCodeSupplement, Spring 2016                 //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+
+#include &ltstring&gt
+
+namespace FileManager
+{
+  struct IFileEventHandler
+  {
+    virtual void execute(const std::string& fileSpec) = 0;
+  };
+
+  struct IDirEventHandler
+  {
+    virtual void execute(const std::string& dirSpec) = 0;
+  };
+
+  struct IDoneEventHandler
+  {
+    virtual void execute(size_t numFilesProcessed) = 0;
+  };
+
+  struct IFileMgr
+  {
+<div class = "function"style = "display : inline-block; ">    virtual ~IFileMgr() {}</div>
+    virtual void addPattern(const std::string& patt) = 0;
+    virtual void search() = 0;
+    virtual void find(const std::string& path) = 0;
+    virtual void regForFiles(IFileEventHandler* pEventHandler) = 0;
+    virtual void regForDirs(IDirEventHandler* pEventHandler) = 0;
+    virtual void regForDone(IDoneEventHandler* pEventHandler) = 0;
+    static IFileMgr* getInstance();
+  };
+
+  struct FileMgrFactory
+  {
+    static IFileMgr* create(const std::string& path);
+  };
+}
+</pre> </body> </html>

@@ -1,0 +1,64 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">//  ActionsAndRules.cpp - implements new parsing rules and actions //</div>
+<div class = "comment" style = "display : block; ">//  ver 3.4                                                        //</div>
+<div class = "comment" style = "display : block; ">//  Language:      Visual C++ 2008, SP1                            //</div>
+<div class = "comment" style = "display : block; ">//  Platform:      Dell Precision T7400, Vista Ultimate SP1        //</div>
+<div class = "comment" style = "display : block; ">//  Application:   Prototype for CSE687 Pr1, Sp09                  //</div>
+<div class = "comment" style = "display : block; ">//  Author:        Jim Fawcett, CST 4-187, Syracuse University     //</div>
+<div class = "comment" style = "display : block; ">//                 (315) 443-3948, jfawcett@twcny.rr.com           //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+
+#include "ActionsAndRules.h"
+#include "../Utilities/Utilities.h"
+
+using namespace CodeAnalysis;
+
+Repository* Repository::instance;
+
+#ifdef TEST_ACTIONSANDRULES
+
+#include &ltiostream&gt
+#include "ActionsAndRules.h"
+#include "Tokenizer.h"
+#include "Semiression.h"
+
+int main(int argc, char* argv[])
+<div class = "function"style = "display : inline-block; ">{
+  std::cout &lt< "\n  Testing ActionsAndRules class\n "
+            &lt< std::string(30,'=') << std::endl;
+
+  try
+  {
+    Utilities::StringHelpers::Title(
+      "Actions and Rules - these construction tests are no longer valid"
+    );
+    <div class = "comment" style = "display : block; ">//PreprocStatement pps;</div>
+    <div class = "comment" style = "display : block; ">//pps.addAction(&ppq);</div>
+
+    <div class = "comment" style = "display : block; ">//FunctionDefinition fnd;</div>
+    <div class = "comment" style = "display : block; ">//PrettyPrintToQ pprtQ(resultsQ);</div>
+    <div class = "comment" style = "display : block; ">//fnd.addAction(&pprtQ);</div>
+
+    <div class = "comment" style = "display : block; ">//Toker toker("../ActionsAndRules.h");</div>
+    <div class = "comment" style = "display : block; ">//Semi se(&toker);</div>
+    <div class = "comment" style = "display : block; ">//Parser parser(&se);</div>
+    <div class = "comment" style = "display : block; ">//parser.addRule(&pps);</div>
+    <div class = "comment" style = "display : block; ">//parser.addRule(&fnd);</div>
+    <div class = "comment" style = "display : block; ">//while(se.get())</div>
+    <div class = "comment" style = "display : block; ">//  parser.parse();</div>
+    <div class = "comment" style = "display : block; ">//size_t len = resultsQ.size();</div>
+    <div class = "comment" style = "display : block; ">//for(size_t i=0; i&ltlen; ++i)</div>
+    <div class = "comment" style = "display : block; ">//{</div>
+    <div class = "comment" style = "display : block; ">//  std::cout &lt< "\n  " << resultsQ.front().c_str();</div>
+    <div class = "comment" style = "display : block; ">//  resultsQ.pop();</div>
+    <div class = "comment" style = "display : block; ">//}</div>
+    std::cout &lt< "\n\n";
+  }
+  catch(std::exception& ex)
+  {
+    std::cout &lt< "\n\n  " << ex.what() << "\n\n";
+  }
+}</div>
+#endif
+</pre> </body> </html>

@@ -1,0 +1,118 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Translater.h - Translates messages to/from managed and native types //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                             //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2018           //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+*  Package Operations:
+* ---------------------
+*  This C++\Cli Package contains one class, Translater.  It's purpose is to convert
+*  managed messages, CsMessage, to native messages, Message, and back.
+*
+*  Required Files:
+* -----------------
+*  Translater.h, Translater.cpp
+*  CsMessage.h
+*  Required References:
+* ----------------------
+*  CommLibWrapper.dll
+*  Message.lib
+*  
+*
+*  Maintenance History:
+* ----------------------
+*  ver 1.0 : 3/27/2018
+*  - first release
+*/</div>
+
+<div class = "comment" style = "display : block; ">// Project &gt Properties > C/C++ > Language > Conformance mode set to No</div>
+<div class = "comment" style = "display : block; ">// Add references to System, System.Core</div>
+
+#include &ltstring&gt
+#include "../CppCommWithFileXfer/MsgPassingComm/IComm.h"
+#include "CsMessage.h"
+#include "../CommLibWrapper1/CommLibWrapper1.h"
+
+using namespace System;
+using namespace System::Text;
+
+namespace MsgPassingCommunication
+{
+  public ref class Translater
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    Translater();
+    void listen(CsEndPoint^ ep, String^ recPath, String^ sndPath);
+    void postMessage(CsMessage^ msg);
+    CsMessage^ getMessage();
+    CsMessage^ fromMessage(Message& msg);
+    Message fromCsMessage(CsMessage^ csMsg);
+  private:
+    CsEndPoint^ ep_;
+    MsgPassingCommunication::CommFactory* pFactory;
+    MsgPassingCommunication::IComm* pComm;
+  };</div>
+  <div class = "comment" style = "display : block; ">//----&lt initialize endpoint &gt----------------------------------------</div>
+
+  Translater::Translater()
+<div class = "function"style = "display : inline-block; ">  {
+    ep_ = gcnew CsEndPoint;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt set client listen endpoint and start Comm &gt------------------</div>
+
+  void Translater::listen(CsEndPoint^ ep, String^ recPath, String^ sndPath)
+<div class = "function"style = "display : inline-block; ">  {
+    std::cout &lt< "\n  using CommFactory to create instance of Comm on native heap";
+    ep_-&gtmachineAddress = ep->machineAddress;
+    ep_-&gtport = ep->port;
+    pFactory = new CommFactory;
+    pComm = pFactory-&gtcreate(Sutils::MtoNstr(ep_->machineAddress), ep_->port);
+    pComm-&gtstart(Sutils::MtoNstr(recPath), Sutils::MtoNstr(sndPath));
+    delete pFactory;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert native message to managed message &gt------------------</div>
+
+  CsMessage^ Translater::fromMessage(Message& msg)
+<div class = "function"style = "display : inline-block; ">  {
+    CsMessage^ csMsg = gcnew CsMessage;
+    Message::Attributes attribs = msg.attributes();
+    for (auto attrib : attribs)
+    {
+      csMsg-&gtadd(Sutils::NtoMstr(attrib.first), Sutils::NtoMstr(attrib.second));
+    }
+    return csMsg;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert managed message to native message &gt------------------</div>
+
+  Message Translater::fromCsMessage(CsMessage^ csMsg)
+<div class = "function"style = "display : inline-block; ">  {
+    Message msg;
+    auto enumer = csMsg-&gtattributes->GetEnumerator();
+    while (enumer.MoveNext())
+    {
+      String^ key = enumer.Current.Key;
+      String^ value = enumer.Current.Value;
+      msg.attribute(Sutils::MtoNstr(key), Sutils::MtoNstr(value));
+    }
+    return msg;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt use Comm to post message &gt-----------------------------------</div>
+
+  inline void Translater::postMessage(CsMessage^ csMsg)
+<div class = "function"style = "display : inline-block; ">  {
+    std::cout &lt< "\n  posting message in Translater";
+    Message msg = this-&gtfromCsMessage(csMsg);
+    pComm-&gtpostMessage(msg);
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt get message from Comm &gt--------------------------------------</div>
+
+  inline CsMessage^ Translater::getMessage()
+<div class = "function"style = "display : inline-block; ">  {
+    std::cout &lt< "\n  getting message in Translater";
+    Message msg = pComm-&gtgetMessage();
+    return fromMessage(msg);
+  }</div>
+}
+</pre> </body> </html>

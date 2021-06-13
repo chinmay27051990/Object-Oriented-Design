@@ -1,0 +1,44 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// StringUtilities.cpp - small, generally useful, helper classes     //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                           //</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2017                              //</div>
+<div class = "comment" style = "display : block; ">// Application: Most Projects, CSE687 - Object Oriented Design       //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187          //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                                //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+
+#include &ltcctype&gt
+#include &ltiostream&gt
+#include "StringUtilities.h"
+#include "../CodeUtilities/CodeUtilities.h"
+
+#ifdef TEST_STRINGUTILITIES
+
+using namespace Utilities;
+
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  Title("Testing Utilities Package");
+  putline();
+
+  title("test split(std::string, ',')");
+
+  std::string test = "a, \n, bc, de, efg, i, j k lm nopq rst";
+  std::cout &lt< "\n  test string = " << test;
+
+  std::vector&ltstd::string&gt result = split(test);
+  showSplits(result);
+
+  title("test split(std::string, ' ')");
+
+  std::cout &lt< "\n  test string = " << test;
+
+  result = split(test, ' ');
+  showSplits(result);
+
+  putline(2);
+  return 0;
+}</div>
+#endif
+</pre> </body> </html>

@@ -1,0 +1,50 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Display.h     : defines webpage display using browser functions       //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                               //</div>
+<div class = "comment" style = "display : block; ">//                                                                       // </div>
+<div class = "comment" style = "display : block; ">// Application   : OOD-S19 Instructor Solution                           //</div>
+<div class = "comment" style = "display : block; ">// Platform      : Visual Studio Community 2017, Windows 10 Pro x64      //</div>
+<div class = "comment" style = "display : block; ">// Author        : Chinmay Vanjare, Syracuse University                  // </div>
+<div class = "comment" style = "display : block; ">//                 cuvanjar@syr.edu                                      //</div>
+<div class = "comment" style = "display : block; ">// Source        : Ammar Salman, Syracuse University                     //</div>
+<div class = "comment" style = "display : block; ">//                 313/788-4694, assalman@syr.edu                        //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+*  Package Operations:
+* =======================
+*  This package defines Display class which accepts a list of files as a
+*  vector&ltstring&gt and uses the default internet browser to display them
+*  one by one. Please note that the functionality has limiations:
+*   1) Opera/MS Edge: will pop-up all tabs instantly.
+*   2) Chrome/Firefox: will pop-up windows separately only if no
+*      already existing Chrome/Firefox window is opened (all must be
+*      closed before running this).
+*
+*  Required Files:
+* =======================
+*  Display.h Display.cpp Process.h Process.cpp
+*
+*  Maintainence History:
+* =======================
+*  ver 1.0 - 8 Apr 2019
+*  - first release
+*/</div>
+
+#include &ltiostream&gt
+#include &ltwindows.h&gt
+#include &ltconio.h&gt
+#include &ltvector&gt
+
+class Display
+<div class = "class"style = "display : inline-block; ">{
+private:
+	std::string cmdLine;
+public:
+	Display();
+	~Display();
+
+	void popupBrowser(std::vector&ltstd::string&gt filePaths, std::vector<std::string> fileNames, std::string dirPath);
+};</div>
+</pre> </body> </html>

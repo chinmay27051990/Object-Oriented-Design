@@ -1,0 +1,1219 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// FileSystem.cpp - Support file and directory operations                  //</div>
+<div class = "comment" style = "display : block; ">// ver 2.8                                                                 //</div>
+<div class = "comment" style = "display : block; ">// ----------------------------------------------------------------------- //</div>
+<div class = "comment" style = "display : block; ">// copyright © Jim Fawcett, 2012                                           //</div>
+<div class = "comment" style = "display : block; ">// All rights granted provided that this notice is retained                //</div>
+<div class = "comment" style = "display : block; ">// ----------------------------------------------------------------------- //</div>
+<div class = "comment" style = "display : block; ">// Language:    Visual C++, Visual Studio 2010                             //</div>
+<div class = "comment" style = "display : block; ">// Platform:    Dell XPS 8300, Core i7, Windows 7 SP1                      //</div>
+<div class = "comment" style = "display : block; ">// Application: Summer Projects, 2012                                      //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, CST 4-187, Syracuse University                //</div>
+<div class = "comment" style = "display : block; ">//              (315) 443-3948, jfawcett@twcny.rr.com                      //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////////</div>
+
+#include &ltiostream&gt
+#include &ltstring&gt
+#include &ltsstream&gt
+#include &ltiomanip&gt
+#include &ltutility&gt
+#include &ltclocale&gt
+#include &ltlocale&gt
+#include "FileSystem.h"
+
+using namespace FileSystem;
+
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// helper FileSystemSearch</div>
+
+class FileSystemSearch
+<div class = "class"style = "display : inline-block; ">{
+public:
+  FileSystemSearch();
+  ~FileSystemSearch();
+  std::string firstFile(const std::string& path=".", const std::string& pattern="*.*");
+  std::string nextFile();
+  std::string firstDirectory(const std::string& path=".", const std::string& pattern="*.*");
+  std::string nextDirectory();
+  void close();
+private:
+  HANDLE hFindFile;
+  WIN32_FIND_DATAA FindFileData;
+  WIN32_FIND_DATAA* pFindFileData;
+};</div>
+
+<div class = "function"style = "display : inline-block; ">FileSystemSearch::FileSystemSearch() : pFindFileData(&FindFileData) {}</div>
+<div class = "function"style = "display : inline-block; ">FileSystemSearch::~FileSystemSearch() { ::FindClose(hFindFile); }</div>
+<div class = "function"style = "display : inline-block; ">void FileSystemSearch::close() { ::FindClose(hFindFile); }</div>
+
+<div class = "comment" style = "display : block; ">//----&lt block constructor taking array iterators &gt-------------------------</div>
+
+<div class = "function"style = "display : inline-block; ">Block::Block(Byte* beg, Byte* end) : bytes_(beg, end) {}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt push back block byte &gt---------------------------------------------</div>
+
+void Block::push_back(Byte b)
+<div class = "function"style = "display : inline-block; ">{
+  bytes_.push_back(b);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt non-const indexer &gt------------------------------------------------</div>
+
+Byte& Block::operator[](size_t i)
+<div class = "function"style = "display : inline-block; ">{
+  if(i&lt0 || bytes_.size() <= i)
+    throw std::runtime_error("index out of range in Block");
+  return bytes_[i];
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt const indexer &gt----------------------------------------------------</div>
+
+Byte Block::operator[](size_t i) const
+<div class = "function"style = "display : inline-block; ">{
+  if(i&lt0 || bytes_.size() <= i)
+    throw std::runtime_error("index out of range in Block");
+  return bytes_[i];
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt equality comparison &gt----------------------------------------------</div>
+
+bool Block::operator==(const Block& block) const
+<div class = "function"style = "display : inline-block; ">{
+  return bytes_ == block.bytes_;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt inequality comparison &gt--------------------------------------------</div>
+
+bool Block::operator!=(const Block& block) const
+{
+  return bytes_ != block.bytes_;
+}
+<div class = "comment" style = "display : block; ">//----&lt return number of bytes in block &gt----------------------------------</div>
+
+size_t Block::size() const
+<div class = "function"style = "display : inline-block; ">{
+  return bytes_.size();
+}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt File constructor opens file stream &gt-------------------------------</div>
+
+File::File(const std::string& filespec) 
+    : name_(filespec), pIStream(nullptr), pOStream(nullptr), dirn_(in), typ_(text), good_(true)
+<div class = "function"style = "display : inline-block; ">{
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt File destructor closes file stream &gt-------------------------------</div>
+
+File::~File() 
+<div class = "function"style = "display : inline-block; ">{ 
+  if(pIStream)
+  {
+    pIStream-&gtclose(); 
+    delete pIStream;
+    pIStream = nullptr;
+    good_ = false;
+  }
+  if(pOStream)
+  {
+    pOStream-&gtclose();
+    delete pOStream; 
+    pOStream = nullptr;
+    good_ = false;
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt open for reading or writing &gt--------------------------------------</div>
+
+bool File::open(direction dirn, type typ)
+<div class = "function"style = "display : inline-block; ">{
+  dirn_ = dirn;
+  typ_ = typ;
+  good_ = true;
+  if(dirn == in)
+  {
+    pIStream = new std::ifstream;
+    if(typ == binary)
+      pIStream-&gtopen(name_.c_str(), std::ios::in | std::ios::binary);
+    else
+      pIStream-&gtopen(name_.c_str(), std::ios::in);
+    if (!(*pIStream).good())
+    {
+      good_ = false;
+      delete pIStream;
+      pIStream = nullptr;
+      <div class = "comment" style = "display : block; ">//throw std::runtime_error("\n  open for input failed in File constructor");</div>
+    }
+  }
+  else
+  {
+    pOStream = new std::ofstream;
+    if(typ == binary)
+      pOStream-&gtopen(name_.c_str(), std::ios::out | std::ios::binary);
+    else
+      pOStream-&gtopen(name_.c_str(), std::ios::out);
+    if (!(*pOStream).good())
+    {
+      good_ = false;
+      delete pOStream;
+      pOStream = nullptr;
+      <div class = "comment" style = "display : block; ">//throw std::runtime_error("\n  open for output failed in File constructor");</div>
+    }
+  }
+  return good_;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt reads one line of a text file &gt------------------------------------</div>
+
+std::string File::getLine(bool keepNewLines)
+<div class = "function"style = "display : inline-block; ">{
+  if(pIStream == nullptr || !pIStream-&gtgood())
+    throw std::runtime_error("input stream not open");
+  if(typ_ == binary)
+    throw std::runtime_error("getting text line from binary file");
+  if(dirn_ == out)
+    throw std::runtime_error("reading output file");
+
+  std::string store;
+  while (true)
+  {
+    char ch = pIStream-&gtget();
+    if (!isGood())
+      return store;
+    if (ch == '\n')
+    {
+      if (keepNewLines)
+        store += ch;
+      return store;
+    }
+    store += ch;
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt read all lines of text file into one string &gt----------------------</div>
+
+std::string File::readAll(bool keepNewLines)
+<div class = "function"style = "display : inline-block; ">{
+  std::string store;
+  while (true)
+  {
+    if (!isGood())
+      return store;
+    store += getLine(keepNewLines);
+    std::locale loc;
+    if (store.size() &gt 0 && !std::isspace(store[store.size() - 1], loc))
+      store += ' ';
+  }
+  return store;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt writes one line of a text to a file &gt------------------------------</div>
+
+void File::putLine(const std::string& s, bool wantReturn)
+<div class = "function"style = "display : inline-block; ">{
+  if(pOStream == nullptr || !pOStream-&gtgood())
+    throw std::runtime_error("output stream not open");
+  if(typ_ == binary)
+    throw std::runtime_error("writing text line to binary file");
+  if(dirn_ == in)
+    throw std::runtime_error("writing input file");
+  for(size_t i=0; i&lts.size(); ++i)
+    pOStream-&gtput(s[i]);
+  if(wantReturn)
+    pOStream-&gtput('\n');
+  pOStream-&gtflush();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt reads a block of bytes from binary file &gt--------------------------</div>
+
+Block File::getBlock(size_t size)
+<div class = "function"style = "display : inline-block; ">{
+  if(pIStream == nullptr || !pIStream-&gtgood())
+    throw std::runtime_error("input stream not open");
+  if(typ_ != binary)
+    throw std::runtime_error("reading binary from text file");
+  if(dirn_ == out)
+    throw std::runtime_error("reading output file");
+  Block blk;
+  if(pIStream)
+  {
+    for(size_t i=0; i&ltsize; ++i)
+    {
+      Byte b;
+      pIStream-&gtget(b);
+      if(pIStream-&gtgood())
+        blk.push_back(b);
+      else
+        break;
+    }
+  }
+  return blk;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt writes a block of bytes to binary file &gt---------------------------</div>
+
+void File::putBlock(const Block& blk)
+<div class = "function"style = "display : inline-block; ">{
+  if(pOStream == nullptr || !pOStream-&gtgood())
+    throw std::runtime_error("output stream not open");
+  if(typ_ != binary)
+    throw std::runtime_error("writing binary to text file");
+  if(dirn_ == in)
+    throw std::runtime_error("writing input file");
+  if(!pOStream-&gtgood())
+    return;
+  for(size_t i=0; i&ltblk.size(); ++i)
+  {
+    pOStream-&gtput(blk[i]);
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt read buffer of bytes from binary file &gt----------------------------</div>
+
+size_t File::getBuffer(size_t bufLen, File::byte* buffer)
+<div class = "function"style = "display : inline-block; ">{
+  if (pIStream == nullptr || !pIStream-&gtgood())
+    throw std::runtime_error("input stream not open");
+  if (typ_ != binary)
+    throw std::runtime_error("reading binary from text file");
+  if (dirn_ == out)
+    throw std::runtime_error("reading output file");
+  size_t count = 0;
+  while (pIStream-&gtgood())
+  {
+    buffer[count++] = pIStream-&gtget();
+      if (count == bufLen)
+        break;
+  }
+  if (!pIStream-&gtgood())  <div class = "comment" style = "display : block; ">// don't write EOF char</div>
+    --count;
+  return count;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt write buffer of bytes to binary file &gt-------------------------------</div>
+
+void File::putBuffer(size_t bufLen, File::byte* buffer)
+<div class = "function"style = "display : inline-block; ">{
+  if (pOStream == nullptr || !pOStream-&gtgood())
+    throw std::runtime_error("output stream not open");
+  if (typ_ != binary)
+    throw std::runtime_error("writing binary to text file");
+  if (dirn_ == in)
+    throw std::runtime_error("writing input file");
+  if (!pOStream-&gtgood())
+    return;
+  size_t count = 0;
+  while(pOStream-&gtgood())
+  {
+    pOStream-&gtput(buffer[count++]);
+    if (count == bufLen)
+      break;
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt tests for error free stream state &gt--------------------------------</div>
+
+bool File::isGood()
+<div class = "function"style = "display : inline-block; ">{
+  if(!good_)
+    return false;
+  if(pIStream != nullptr)
+    return (good_ = pIStream-&gtgood());
+  if(pOStream != nullptr)
+    return (good_ = pOStream-&gtgood());
+  return (good_ = false);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt flushes output stream to its file &gt--------------------------------</div>
+
+void File::flush()
+<div class = "function"style = "display : inline-block; ">{
+  if(pOStream != nullptr && pOStream-&gtgood())
+    pOStream-&gtflush();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt clears error state enabling operations again &gt---------------------</div>
+
+void File::clear()
+<div class = "function"style = "display : inline-block; ">{
+  if(pIStream != nullptr)
+    pIStream-&gtclear();
+  if(pOStream != nullptr)
+    pOStream-&gtclear();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt close file handle &gt------------------------------------------------</div>
+
+void File::close()
+<div class = "function"style = "display : inline-block; ">{
+  File::flush();
+  if (pIStream != nullptr)
+  {
+    pIStream-&gtclose();
+    delete pIStream;
+    pIStream = nullptr;
+    good_ = false;
+  }
+  if (pOStream)
+  {
+    pOStream-&gtclose();
+    delete pOStream;
+    pOStream = nullptr;
+    good_ = false;
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt file exists &gt--------------------------------------------------</div>
+
+bool File::exists(const std::string& file)
+<div class = "function"style = "display : inline-block; ">{
+  return ::GetFileAttributesA(file.c_str()) != INVALID_FILE_ATTRIBUTES;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt copy file &gt----------------------------------------------------</div>
+
+bool File::copy(const std::string& src, const std::string& dst, bool failIfExists)
+<div class = "function"style = "display : inline-block; ">{
+  return ::CopyFileA(src.c_str(), dst.c_str(), failIfExists) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove file &gt--------------------------------------------------</div>
+
+bool File::remove(const std::string& file)
+<div class = "function"style = "display : inline-block; ">{
+  return ::DeleteFileA(file.c_str()) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt constructor &gt--------------------------------------------------</div>
+
+FileInfo::FileInfo(const std::string& fileSpec)
+<div class = "function"style = "display : inline-block; ">{
+  hFindFile = ::FindFirstFileA(fileSpec.c_str(), &data);
+  if(hFindFile == INVALID_HANDLE_VALUE)
+    good_ = false;
+  else
+    good_ = true;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt destructor &gt---------------------------------------------------</div>
+
+FileInfo::~FileInfo()
+<div class = "function"style = "display : inline-block; ">{
+  ::FindClose(hFindFile);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is passed filespec valid? &gt------------------------------------</div>
+
+bool FileInfo::good()
+<div class = "function"style = "display : inline-block; ">{
+  return good_;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return file name &gt---------------------------------------------</div>
+
+std::string FileInfo::name() const
+<div class = "function"style = "display : inline-block; ">{
+  return Path::getName(data.cFileName);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt conversion helper &gt--------------------------------------------</div>
+
+std::string FileInfo::intToString(long i)
+<div class = "function"style = "display : inline-block; ">{
+  std::ostringstream out;
+  out.fill('0');
+  out &lt< std::setw(2) << i;
+  return out.str();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return file date &gt---------------------------------------------</div>
+
+std::string FileInfo::date(dateFormat df) const
+<div class = "function"style = "display : inline-block; ">{
+  std::string dateStr, timeStr;
+  FILETIME ft;
+  SYSTEMTIME st;
+  ::FileTimeToLocalFileTime(&data.ftLastWriteTime, &ft);
+  ::FileTimeToSystemTime(&ft, &st);
+  dateStr = intToString(st.wMonth) + '/' + intToString(st.wDay) + '/' + intToString(st.wYear);
+  timeStr = intToString(st.wHour) + ':' + intToString(st.wMinute) + ':' + intToString(st.wSecond);
+  if(df == dateformat)
+    return dateStr;
+  if(df == timeformat)
+    return timeStr;
+  return dateStr + " " + timeStr;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return file size &gt---------------------------------------------</div>
+
+size_t FileInfo::size() const
+<div class = "function"style = "display : inline-block; ">{
+  return (size_t)(data.nFileSizeLow + (data.nFileSizeHigh &lt< 8));
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type archive? &gt---------------------------------------------</div>
+
+bool FileInfo::isArchive() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type compressed? &gt------------------------------------------</div>
+
+bool FileInfo::isCompressed() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type directory? &gt-------------------------------------------</div>
+
+bool FileInfo::isDirectory() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type encrypted? &gt---------------------------------------------</div>
+
+bool FileInfo::isEncrypted() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type hiddent? &gt---------------------------------------------</div>
+
+bool FileInfo::isHidden() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type normal? &gt---------------------------------------------</div>
+
+bool FileInfo::isNormal() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type offline? &gt---------------------------------------------</div>
+
+bool FileInfo::isOffLine() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type readonly? &gt--------------------------------------------</div>
+
+bool FileInfo::isReadOnly() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type system? &gt----------------------------------------------</div>
+
+bool FileInfo::isSystem() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM  ) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is type temporary? &gt-------------------------------------------</div>
+
+bool FileInfo::isTemporary() const
+<div class = "function"style = "display : inline-block; ">{
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt compare names alphabetically &gt---------------------------------</div>
+
+bool FileInfo::operator&lt(const FileInfo& fi) const
+<div class = "function"style = "display : inline-block; ">{
+  return strcmp(data.cFileName, fi.data.cFileName) == -1;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt compare names alphabetically &gt---------------------------------</div>
+
+bool FileInfo::operator==(const FileInfo& fi) const
+<div class = "function"style = "display : inline-block; ">{
+  return strcmp(data.cFileName, fi.data.cFileName) == 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt compare names alphabetically &gt---------------------------------</div>
+
+bool FileInfo::operator&gt(const FileInfo& fi) const
+<div class = "function"style = "display : inline-block; ">{
+  return strcmp(data.cFileName, fi.data.cFileName) == 1;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt compare file times &gt-------------------------------------------</div>
+
+bool FileInfo::earlier(const FileInfo& fi) const
+<div class = "function"style = "display : inline-block; ">{
+  FILETIME ft1 = data.ftLastWriteTime;
+  FILETIME ft2 = fi.data.ftLastWriteTime;
+  return ::CompareFileTime(&ft1, &ft2) == -1;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt compare file times &gt-------------------------------------------</div>
+
+bool FileInfo::later(const FileInfo& fi) const
+<div class = "function"style = "display : inline-block; ">{
+  FILETIME ft1 = data.ftLastWriteTime;
+  FILETIME ft2 = fi.data.ftLastWriteTime;
+  return ::CompareFileTime(&ft1, &ft2) == 1;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt smaller &gt------------------------------------------------------</div>
+
+bool FileInfo::smaller(const FileInfo &fi) const
+<div class = "function"style = "display : inline-block; ">{
+  return size() &lt fi.size();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt larger &gt-------------------------------------------------------</div>
+
+bool FileInfo::larger(const FileInfo &fi) const
+<div class = "function"style = "display : inline-block; ">{
+  return size() &gt fi.size();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt convert string to lower case chars &gt---------------------------</div>
+
+std::string Path::toLower(const std::string& src)
+<div class = "function"style = "display : inline-block; ">{
+  std::string temp;
+  for(size_t i=0; i&ltsrc.length(); ++i)
+    temp += tolower(src[i]);
+  return temp;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt convert string to upper case chars &gt---------------------------</div>
+
+  
+std::string Path::toUpper(const std::string& src)
+<div class = "function"style = "display : inline-block; ">{
+  std::string temp;
+  for(size_t i=0; i&ltsrc.length(); ++i)
+    temp += toupper(src[i]);
+  return temp;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get path from fileSpec &gt---------------------------------------</div>
+
+std::string Path::getName(const std::string &fileSpec, bool withExt)
+<div class = "function"style = "display : inline-block; ">{
+  size_t pos = fileSpec.find_last_of("/");
+  if(pos &gt= fileSpec.length())
+  {
+    pos = fileSpec.find_last_of("\\");
+    if(pos &gt= fileSpec.length())
+    {
+      <div class = "comment" style = "display : block; ">// no path prepended</div>
+      if(withExt)
+        return fileSpec;
+      else
+      {
+        <div class = "comment" style = "display : block; ">// remove ext</div>
+        size_t pos = fileSpec.find(".");
+        if(pos &gt fileSpec.size())
+          return fileSpec;
+        return fileSpec.substr(0, pos-1);
+      }
+    }
+  }
+  if(withExt)
+    return fileSpec.substr(pos+1,fileSpec.length()-pos);
+  else
+  {
+    <div class = "comment" style = "display : block; ">// remove ext</div>
+    size_t pos2 = fileSpec.find(".", pos);
+    if(pos2 &gt fileSpec.size())
+      <div class = "comment" style = "display : block; ">// no ext</div>
+      return fileSpec.substr(pos+1);
+    return fileSpec.substr(pos+1, pos2-pos-1);
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get extension from fileSpec &gt----------------------------------</div>
+  
+std::string Path::getExt(const std::string& fileSpec)
+<div class = "function"style = "display : inline-block; ">{
+  size_t pos1 = fileSpec.find_last_of('/');
+  size_t pos2 = fileSpec.find_last_of('\\');
+  size_t pos = fileSpec.find_last_of('.');
+  <div class = "comment" style = "display : block; ">// handle ../ or ..\\ with no extension</div>
+  if(pos1 &lt fileSpec.length() || pos2 < fileSpec.length())
+  {
+    if(pos &lt min(pos1, pos2))
+      return std::string("");
+  }
+  <div class = "comment" style = "display : block; ">// only . is extension delimiter</div>
+  if(0 &lt= pos && pos < fileSpec.length())
+    return toLower(fileSpec.substr(pos+1,fileSpec.length()-pos));
+  return std::string("");
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get path from fileSpec &gt---------------------------------------</div>
+
+std::string Path::getPath(const std::string &fileSpec)
+<div class = "function"style = "display : inline-block; ">{
+  size_t pos = fileSpec.find_last_of("/");
+  if(pos &gt= fileSpec.length())
+    pos = fileSpec.find_last_of("\\");
+  if(pos &gt= fileSpec.length())
+    return ".";
+  if(fileSpec.find(".",pos+1))
+    return fileSpec.substr(0,pos+1);
+  return fileSpec;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get absoluth path from fileSpec &gt------------------------------</div>
+
+std::string Path::getFullFileSpec(const std::string &fileSpec)
+<div class = "function"style = "display : inline-block; ">{
+  const size_t BufSize = 256;
+  char buffer[BufSize];
+  char filebuffer[BufSize];  <div class = "comment" style = "display : block; ">// don't use but GetFullPathName will</div>
+  char* name = filebuffer;
+  ::GetFullPathNameA(fileSpec.c_str(),BufSize, buffer, &name);
+  return std::string(buffer);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt create file spec from path and name &gt--------------------------</div>
+
+std::string Path::fileSpec(const std::string &path, const std::string &name)
+<div class = "function"style = "display : inline-block; ">{
+  std::string fs;
+  size_t len = path.size();
+  if(path[len-1] == '/' || path[len-1] == '\\')
+    fs = path + name;
+  else
+  {
+    if(path.find("/") &lt path.size())
+      fs = path + "/" + name;
+    else if(path.find("\\") &lt path.size())
+      fs = path + "\\" + name;
+    else
+      fs = path + "/" + name;
+  }
+  return fs;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return name of the current directory &gt-----------------------------</div>
+
+std::string Directory::getCurrentDirectory()
+<div class = "function"style = "display : inline-block; ">{
+  char buffer[MAX_PATH];
+  ::GetCurrentDirectoryA(MAX_PATH,buffer);
+  return std::string(buffer);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt change the current directory to path &gt-----------------------------</div>
+
+bool Directory::setCurrentDirectory(const std::string& path)
+<div class = "function"style = "display : inline-block; ">{
+  return ::SetCurrentDirectoryA(path.c_str()) != 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get names of all the files matching pattern (path:name) &gt----------</div>
+
+std::vector&ltstd::string&gt Directory::getFiles(const std::string& path, const std::string& pattern)
+<div class = "function"style = "display : inline-block; ">{
+  std::vector&ltstd::string&gt files;
+  FileSystemSearch fss;
+  std::string file = fss.firstFile(path, pattern);
+  if(file.size() == 0)
+    return files;
+  files.push_back(file);
+  while(true)
+  {
+    file = fss.nextFile();
+    if(file.size() == 0)
+      return files;
+    files.push_back(file);
+  }
+  return files;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get names of all directories matching pattern (path:name) &gt--------</div>
+
+std::vector&ltstd::string&gt Directory::getDirectories(const std::string& path, const std::string& pattern)
+<div class = "function"style = "display : inline-block; ">{
+  std::vector&ltstd::string&gt dirs;
+  FileSystemSearch fss;
+  std::string dir = fss.firstDirectory(path, pattern);
+  if(dir.size() == 0)
+    return dirs;
+  dirs.push_back(dir);
+  while(true)
+  {
+    dir = fss.nextDirectory();
+    if(dir.size() == 0)
+      return dirs;
+    dirs.push_back(dir);
+  }
+  return dirs;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt create directory &gt-------------------------------------------------</div>
+
+bool Directory::create(const std::string& path)
+<div class = "function"style = "display : inline-block; ">{
+  return ::CreateDirectoryA(path.c_str(), NULL) == 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt does directory exist? &gt--------------------------------------------</div>
+
+bool Directory::exists(const std::string& path)
+<div class = "function"style = "display : inline-block; ">{
+  DWORD dwAttrib = GetFileAttributesA(path.c_str());
+
+  return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+         (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove directory &gt-------------------------------------------------</div>
+
+bool Directory::remove(const std::string& path)
+<div class = "function"style = "display : inline-block; ">{
+  return ::RemoveDirectoryA(path.c_str()) == 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt find first file &gt--------------------------------------------------</div>
+
+std::string FileSystemSearch::firstFile(const std::string& path, const std::string& pattern)
+<div class = "function"style = "display : inline-block; ">{
+  hFindFile = ::FindFirstFileA(Path::fileSpec(path, pattern).c_str(), pFindFileData);
+  if(hFindFile != INVALID_HANDLE_VALUE)
+  {
+    if(!(pFindFileData-&gtdwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+      return pFindFileData-&gtcFileName;
+    else
+      while(::FindNextFileA(hFindFile, pFindFileData))
+        if(!(pFindFileData-&gtdwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+          return pFindFileData-&gtcFileName;
+  }
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt find next file &gt---------------------------------------------------</div>
+
+std::string FileSystemSearch::nextFile()
+<div class = "function"style = "display : inline-block; ">{
+  while(::FindNextFileA(hFindFile, pFindFileData))
+    if(!(pFindFileData-&gtdwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+      return pFindFileData-&gtcFileName;
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt find first file &gt--------------------------------------------------</div>
+
+std::string FileSystemSearch::firstDirectory(const std::string& path, const std::string& pattern)
+<div class = "function"style = "display : inline-block; ">{
+  hFindFile = ::FindFirstFileA(Path::fileSpec(path, pattern).c_str(), pFindFileData);
+  if(hFindFile != INVALID_HANDLE_VALUE)
+  {
+    if(pFindFileData-&gtdwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+      return pFindFileData-&gtcFileName;
+    else
+      while(::FindNextFileA(hFindFile, pFindFileData))
+        if(pFindFileData-&gtdwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+          return pFindFileData-&gtcFileName;
+  }
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt find next file &gt---------------------------------------------------</div>
+
+std::string FileSystemSearch::nextDirectory()
+<div class = "function"style = "display : inline-block; ">{
+  while(::FindNextFileA(hFindFile, pFindFileData))
+    if(pFindFileData-&gtdwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+      return pFindFileData-&gtcFileName;
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt test stub &gt--------------------------------------------------------</div>
+
+#ifdef TEST_FILESYSTEM
+
+void title(const std::string& title, char ch='=')
+<div class = "function"style = "display : inline-block; ">{
+  std::cout &lt< "\n  " << title;
+  std::cout &lt< "\n " << std::string(title.size()+2, ch);
+}</div>
+int main(int argc, char* argv[])
+<div class = "function"style = "display : inline-block; ">{
+  title("Demonstrate Path Class");
+
+  std::string fs = Path::fileSpec(".","temp.txt");
+  std::cout &lt< "\n  Path::fileSpec(\".\",\"temp.txt\") = " << fs;
+
+  std::string path = Path::getPath(fs);
+  std::cout &lt< "\n  Path::getPath(\"" + fs + "\") = " << path;
+  
+  std::string ffs = Path::getFullFileSpec(fs);
+  std::cout &lt< "\n  Path::getFullFileSpec(\"" + fs + "\") = " << ffs;
+  
+  std::string name = Path::getName(fs);
+  std::cout &lt< "\n  Path::getName(\"" + fs + "\") = " << name;
+
+  std::string ext = Path::getExt(fs);
+  std::cout &lt< "\n  Path::getExt(\"" + fs + "\") = " << ext;
+
+  std::string upper = Path::toUpper("temp.txt");
+  std::cout &lt< "\n  Path::toUpper(\"temp.txt\") = " << upper;
+
+  std::string lower = Path::toLower("Temp.Txt");
+  std::cout &lt< "\n  Path::toLower(\"Temp.Txt\") = " << lower;
+  std::cout &lt< std::endl;
+  <div class = "comment" style = "display : block; ">/*
+  title("Demonstrate FileSystemSearch class");
+
+  const size_t PathSetSize = 2;
+  std::string home = ::getenv("HOMEDRIVE");
+  std::string pathSet[] = { home+"\\\\", "." };
+  FileSystemSearch fss;
+  for(size_t i = 0; i&ltPathSetSize; ++i)
+  {
+    std::cout &lt< "\n  searching for files on \"" << pathSet[i] << "\"";
+    std::cout &lt< "\n " << std::string(27 + pathSet[i].size(), '-');
+    std::string searchPath = pathSet[i];
+    std::string fileName = fss.firstFile(searchPath);
+    if(fileName.size() &gt 0)
+      std::cout &lt< "\n  " << fileName;
+    else
+      std::cout &lt< "\n  no files match search";
+    while(true) {
+      fileName = fss.nextFile();
+      if(fileName.size() &gt 0)
+        std::cout &lt< "\n  " << fileName;
+      else
+        break;
+    }
+    std::cout &lt< std::endl;
+
+    std::cout &lt< "\n  searching for directories on \"" << pathSet[i] << "\"";
+    std::cout &lt< "\n " << std::string(33 + pathSet[i].size(), '-');
+    std::string dirName = fss.firstDirectory(searchPath);
+    if(dirName.size() &gt 0)
+      std::cout &lt< "\n  " << dirName;
+    else
+      std::cout &lt< "\n  no directories match search";
+    while(true)
+    {
+      dirName = fss.nextDirectory();
+      if(dirName.size() &gt 0)
+        std::cout &lt< "\n  " << dirName;
+      else
+        break;
+    }
+    std::cout &lt< std::endl;
+  }
+  */</div>
+  title("Demonstrate Directory class");
+
+  <div class = "comment" style = "display : block; ">// Display contents of current directory</div>
+
+  std::cout &lt< "\n  current directory is:\n    " << Directory::getCurrentDirectory();
+  std::cout &lt< "\n  It contains files:";
+  std::vector&ltstd::string&gt currfiles = Directory::getFiles();
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// This works too</div>
+  <div class = "comment" style = "display : block; ">// std::vector&ltstd::string&gt currfiles = d.getFiles();  </div>
+  for(size_t i=0; i&ltcurrfiles.size(); ++i)
+    std::cout &lt< "\n    " << currfiles[i].c_str();
+  std::cout &lt< "\n  and contains directories:";
+  std::vector&ltstd::string&gt currdirs = Directory::getDirectories();
+  for(size_t i=0; i&ltcurrdirs.size(); ++i)
+    std::cout &lt< "\n    " << currdirs[i].c_str();
+  std::cout &lt< "\n";
+
+  <div class = "comment" style = "display : block; ">// Display contents of non-current directory</div>
+
+  std::cout &lt< "\n  .txt files residing in C:/temp are:";
+  currfiles = Directory::getFiles("c:/temp/", "*.txt");
+
+  <div class = "comment" style = "display : block; ">// if we want fully qualified file names, we have to</div>
+  <div class = "comment" style = "display : block; ">// set the current directory to the path on which the files</div>
+  <div class = "comment" style = "display : block; ">// reside, if it isn't already so set</div>
+
+  std::string currDir = Directory::getCurrentDirectory();
+  Directory::setCurrentDirectory("c:/temp/");
+  for(size_t i=0; i&ltcurrfiles.size(); ++i)
+    std::cout &lt< "\n    " << Path::getFullFileSpec(currfiles[i]).c_str();
+  Directory::setCurrentDirectory(currDir);
+
+  <div class = "comment" style = "display : block; ">// we have to restore the current directory so the</div>
+  <div class = "comment" style = "display : block; ">// remaining tests work</div>
+
+  <div class = "comment" style = "display : block; ">// it's probably easier just to use Path::fileSpec(path, filename)</div>
+  <div class = "comment" style = "display : block; ">// like this:</div>
+
+  for (size_t i = 0; i&ltcurrfiles.size(); ++i)
+    std::cout &lt< "\n    " << Path::fileSpec("c:\\temp\\", currfiles[i]).c_str();
+
+  std::cout &lt< "\n";
+  std::cout &lt< "\n  directories residing in C:/temp are:";
+  currdirs = Directory::getDirectories("c:/temp/");
+  for(size_t i=0; i&ltcurrdirs.size(); ++i)
+    std::cout &lt< "\n    " << currdirs[i].c_str();
+  std::cout &lt< "\n";
+
+  <div class = "comment" style = "display : block; ">// Create directory</div>
+
+  title("Demonstrate FileInfo Class Operations", '=');
+  std::cout &lt< "\n";
+
+  Directory::setCurrentDirectory(".");
+  std::cout &lt< "\n  current path is \"" << Directory::getCurrentDirectory();
+  
+  std::string fn1;
+  if(argc &gt 1)
+    fn1 = argv[1];
+  else
+    fn1 = "c:\\temp\\test.txt";
+  FileInfo fi(fn1);
+
+  if(fi.good())
+  {
+    std::cout &lt< "\n  name: " << "\t" << fi.name();
+    std::cout &lt< "\n  date: " << "\t" << fi.date();
+    std::cout &lt< "\n  date: " << "\t" << fi.date(FileInfo::dateformat);
+    std::cout &lt< "\n  date: " << "\t" << fi.date(FileInfo::timeformat);
+    std::cout &lt< "\n  size: " << "\t" << fi.size() << " bytes";
+    if(fi.isArchive())
+      std::cout &lt< "\n  is archive";
+    else
+      std::cout &lt< "\n  is not archive";
+    if(fi.isCompressed())
+      std::cout &lt< "\n  is compressed";
+    else
+      std::cout &lt< "\n  is not compressed";
+    if(fi.isDirectory())
+      std::cout &lt< "\n  is directory";
+    else
+      std::cout &lt< "\n  is not directory";
+    if(fi.isEncrypted())
+      std::cout &lt< "\n  is encrypted";
+    else
+      std::cout &lt< "\n  is not encrypted";
+    if(fi.isHidden())
+      std::cout &lt< "\n  is hidden";
+    else
+      std::cout &lt< "\n  is not hidden";
+    if(fi.isNormal())
+      std::cout &lt< "\n  is normal";
+    else
+      std::cout &lt< "\n  is not normal";
+    if(fi.isOffLine())
+      std::cout &lt< "\n  is offline";
+    else
+      std::cout &lt< "\n  is not offline";
+    if(fi.isReadOnly())
+      std::cout &lt< "\n  is readonly";
+    else
+      std::cout &lt< "\n  is not readonly";
+    if(fi.isSystem())
+      std::cout &lt< "\n  is system";
+    else
+      std::cout &lt< "\n  is not system";
+    if(fi.isTemporary())
+      std::cout &lt< "\n  is temporary";
+    else
+      std::cout &lt< "\n  is not temporary";
+  }
+  else
+    std::cout &lt< "\n  filename " << fn1 << " is not valid in this context\n";
+
+  std::string fn2;
+  if(argc &gt 2)
+  {
+    fn1 = argv[1];
+    fn2 = argv[2];
+  }
+  else
+  {
+    fn1 = "FileSystem.h";
+    fn2 = "FileSystem.cpp";
+  }
+  FileInfo fi1(fn1);
+  FileInfo fi2(fn2);
+  if(fi1.good() && fi2.good())
+  {
+    if(fi1 == fi1)
+      std::cout &lt< "\n  " << fi1.name() << " == " << fi1.name();
+    else
+      std::cout &lt< "\n  " << fi1.name() << " != " << fi1.name();
+    if(fi1 &lt fi1)
+      std::cout &lt< "\n  " << fi1.name() << " < " << fi1.name();
+    else
+      std::cout &lt< "\n  " << fi1.name() << " &gt= " << fi1.name();
+    if(fi1 == fi2)
+      std::cout &lt< "\n  " << fi1.name() << " == " << fi2.name();
+    else
+      std::cout &lt< "\n  " << fi1.name() << " != " << fi2.name();
+    if(fi1 &lt fi2)
+      std::cout &lt< "\n  " << fi1.name() << " < " << fi2.name();
+    else
+      std::cout &lt< "\n  " << fi1.name() << " &gt= " << fi2.name();
+    if(fi1.smaller(fi2))
+      std::cout &lt< "\n  " << fi1.name() << " is smaller than " << fi2.name();
+    else
+      std::cout &lt< "\n  " << fi1.name() << " is not smaller than " << fi2.name();
+    if(fi1.earlier(fi2))
+      std::cout &lt< "\n  " << fi1.name() << " is earlier than " << fi2.name();
+    else
+      std::cout &lt< "\n  " << fi1.name() << " is not earlier than " << fi2.name();
+    std::cout &lt< std::endl;
+  }
+  else
+    std::cout &lt< "\n  files " << fn1 << " and " << fn2 << " are not valid in this context\n";
+
+  title("Demonstrate File class operations", '=');
+  std::cout &lt< "\n";
+
+  <div class = "comment" style = "display : block; ">// copy binary file from one directory to another</div>
+
+  File me("../debug/filesystemdemo.exe");
+  me.open(File::in, File::binary);
+  std::cout &lt< "\n  copying " << me.name().c_str() << " to c:/temp";
+  if(!me.isGood())
+  {
+    std::cout &lt< "\n  can't open executable\n";
+    std::cout &lt< "\n  looking for:\n  ";
+    std::cout &lt< Path::getFullFileSpec(me.name()) << "\n";
+  }
+  else
+  {
+    File you("c:/temp/fileSystemdemo.exe");
+    you.open(File::out, File::binary);
+    if(you.isGood())
+    {
+      while(me.isGood())
+      {
+        static size_t count = 0;
+        Block b = me.getBlock(1024);
+        you.putBlock(b);
+        if (++count &lt 10)
+        {
+          std::cout &lt< "\n    reading block of " << b.size() << " bytes";
+          std::cout &lt< "\n    writing block of " << b.size() << " bytes";
+        }
+        if (b.size() &lt 1024)
+        {
+          std::cout &lt< "\n\n    omitted " << count-10 << " blocks from display\n\n";
+          std::cout &lt< "\n    reading block of " << b.size() << " bytes";
+          std::cout &lt< "\n    writing block of " << b.size() << " bytes";
+        }
+      }
+      std::cout &lt< "\n";
+    }
+  }
+
+  <div class = "comment" style = "display : block; ">// save some filespecs of text files in a vector for File demonstrations</div>
+
+  std::vector&ltstd::string&gt files;
+  if(argc == 1)
+  {
+    std::cout &lt< "\n\n  Enter, on the command line, an additional filename to process.\n";
+  }
+
+  for(int i=1; i&ltargc; ++i)
+  {
+    files.push_back(argv[i]);
+  }
+  files.push_back("FileSystem.cpp");                     <div class = "comment" style = "display : block; ">// file not on current path</div>
+  files.push_back("../FileSystemDemo/FileSystem.cpp");   <div class = "comment" style = "display : block; ">// file from project directory</div>
+  files.push_back("../FileSystemTest.txt");              <div class = "comment" style = "display : block; ">// file in solution directory</div>
+  files.push_back("foobar");                             <div class = "comment" style = "display : block; ">// doesn't exist</div>
+
+  <div class = "comment" style = "display : block; ">// open each file and display a few lines of text</div>
+
+  for(size_t i=0; i&ltfiles.size(); ++i)
+  {
+    File file(files[i]);
+    file.open(File::in);
+    if(!file.isGood())
+    {
+      std::cout &lt< "\n  Can't open file " << file.name();
+      std::cout &lt< "\n  Here's what the program can't find:\n  " << Path::getFullFileSpec(file.name()); 
+      continue;
+    }
+    std::string temp = std::string("Processing file ") + files[i];
+    title(temp, '-');
+    for(int j=0; j&lt10; ++j)
+    {
+      if(!file.isGood())
+        break;
+      std::cout &lt< "\n  -- " << file.getLine().c_str();
+    }
+    std::cout &lt< "\n";
+  }
+  std::cout &lt< "\n";
+
+  <div class = "comment" style = "display : block; ">// read all lines of text file into string</div>
+
+  title("testing File::readAll()", '-');
+  std::cout &lt< "\n";
+  File testAll("../FileSystemTest.txt");
+  testAll.open(File::in);
+  if (testAll.isGood())
+  {
+    std::string all = testAll.readAll();
+    std::cout &lt< all << "\n";
+  }
+  testAll.close();
+
+  title("testing File::readAll(true)", '-');
+  std::cout &lt< "\n";
+  File testAllTrue("../FileSystemTest.txt");
+  testAllTrue.open(File::in);
+  if (testAllTrue.isGood())
+  {
+    std::string all = testAllTrue.readAll(true);
+    std::cout &lt< all << "\n";
+  }
+  testAllTrue.close();
+
+  <div class = "comment" style = "display : block; ">// test reading non-text files</div>
+
+  title("test reading non-text files", '-');
+  std::cout &lt< "\n";
+  std::string testPath = "./debug";  <div class = "comment" style = "display : block; ">// run from project directory (what Visual Studio does)</div>
+  if (!Directory::exists(testPath))
+    testPath = ".";                  <div class = "comment" style = "display : block; ">// run from solution debug directory</div>
+  std::vector&ltstd::string&gt testFiles = Directory::getFiles(testPath);
+  for (auto file : testFiles)
+  {
+    try
+    {
+      std::string ext = Path::getExt(file);
+      if (ext == "exe" || ext == "dll" || file == "run.dat")
+      {
+        <div class = "comment" style = "display : block; ">/* reading binary file works, but generates a lot of garbage */</div>
+        <div class = "comment" style = "display : block; ">/* I use run.dat to capture this output so including will make output confusing */</div>
+
+        std::cout &lt< "  skipping binary file " << file << "\n";
+        continue;
+      }
+      File test(file);
+      test.open(File::in);  <div class = "comment" style = "display : block; ">// open as text file</div>
+      std::cout &lt< "\n  processing \"" << file << "\"\n";
+      if (test.isGood())
+      {
+        std::string text = test.readAll(true);
+        std::cout &lt< text << "\n";
+      }
+      else
+      {
+        std::cout &lt< "\n  open failed\n";
+      }
+    }
+    catch (std::exception& ex)
+    {
+      std::cout &lt< "\n  Exception: " << ex.what() << "\n";
+    }
+  }</div>
+
+  <div class = "comment" style = "display : block; ">// read text file and write to another text file</div>
+
+  title("writing to c:/temp/test.txt", '-');
+  File in("../FileSystemDemo/FileSystem.h");
+  in.open(File::in, File::text);
+  File out("c:/temp/test.txt");
+  out.open(File::out, File::text);
+  while(in.isGood())
+  {
+    std::string temp = in.getLine();
+    <div class = "comment" style = "display : block; ">//std::cout &lt< "\n  " << temp.c_str();</div>
+    out.putLine(temp);
+    out.putLine("\n");
+  }
+  std::cout &lt< "\n  check c:/temp/test.txt to validate";
+  std::cout &lt< "\n\n";
+
+  <div class = "comment" style = "display : block; ">// read and write buffers</div>
+
+  title("reading and writing buffers");
+  std::cout &lt< "\n  " << FileSystem::Directory::getCurrentDirectory();
+  std::string fileIn = "TestFileSystem/UnitTest.h";
+  std::string fileOut = "TestFileSystem/CopyOfUnitTest.h";
+  File bufferIn(fileIn);
+  bufferIn.open(File::in, File::binary);
+  if (!bufferIn.isGood())
+  {
+    std::cout &lt< "\n  could not open \"" << fileIn << "\" for reading";
+      return 1;
+  }
+  else
+  {
+    std::cout &lt< "\n  opening: \"" << fileIn << "\" for reading";
+  }
+  File bufferOut(fileOut);
+  bufferOut.open(File::out, File::binary);
+  if (!bufferOut.isGood())
+  {
+    std::cout &lt< "\n  could not open \"" << fileOut << "\" for writing\n\n";
+      return 1;
+  }
+  else
+  {
+    std::cout &lt< "\n  opening: \"" << fileOut << "\" for writing";
+  }
+  std::cout &lt< "\n";
+  const size_t bufLen = 124;
+  File::byte buffer[bufLen];
+  while (true)
+  {
+    size_t resultSize = bufferIn.getBuffer(bufLen, buffer);
+    <div class = "comment" style = "display : block; ">//std::cout &lt< "\n  reading buffer of size " << resultSize << " bytes";</div>
+    std::string temp1(buffer, resultSize);
+    std::cout &lt< temp1;
+    <div class = "comment" style = "display : block; ">//std::cout &lt< "\n  writing buffer of size " << resultSize << "bytes";</div>
+    bufferOut.putBuffer(resultSize, buffer);
+    if (resultSize &lt bufLen || !bufferIn.isGood() || !bufferOut.isGood())
+    {
+      bufferIn.close();
+      bufferOut.close();
+      break;
+    }
+  }
+  std::cout &lt< "\n\n";
+}
+#endif
+</pre> </body> </html>

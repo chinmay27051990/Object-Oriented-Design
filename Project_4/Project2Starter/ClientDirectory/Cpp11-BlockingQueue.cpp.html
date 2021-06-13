@@ -1,0 +1,85 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Cpp11-BlockingQueue.cpp - Thread-safe Blocking Queue      //</div>
+<div class = "comment" style = "display : block; ">// ver 1.1                                                   //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2013 //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+
+#include &ltcondition_variable&gt
+#include &ltmutex&gt
+#include &ltthread&gt
+#include &ltqueue&gt
+#include &ltstring&gt
+#include &ltiostream&gt
+#include &ltsstream&gt
+#include "Cpp11-BlockingQueue.h"
+
+#ifdef TEST_BLOCKINGQUEUE
+
+std::mutex ioLock;
+
+void test(BlockingQueue&ltstd::string&gt* pQ)
+<div class = "function"style = "display : inline-block; ">{
+  std::string msg;
+  do
+  {
+    msg = pQ-&gtdeQ();
+    {
+      std::lock_guard&ltstd::mutex&gt l(ioLock);
+      std::cout &lt< "\n  thread deQed " << msg.c_str();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  } while(msg != "quit");
+}</div>
+
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  std::cout &lt< "\n  Demonstrating C++11 Blocking Queue";
+  std::cout &lt< "\n ====================================";
+
+  BlockingQueue&ltstd::string&gt q;
+  std::thread t(test, &q);
+
+  for(int i=0; i&lt15; ++i)
+  {
+    std::ostringstream temp;
+    temp &lt< i;
+    std::string msg = std::string("msg#") + temp.str();
+    {
+      std::lock_guard&ltstd::mutex&gt l(ioLock);
+      std::cout &lt< "\n   main enQing " << msg.c_str();
+    }
+    q.enQ(msg);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3));
+  }
+  q.enQ("quit");
+  t.join();
+
+  std::cout &lt< "\n";
+  std::cout &lt< "\n  Making copy of BlockingQueue";
+  std::cout &lt< "\n ------------------------------";
+
+  std::string msg = "test";
+  q.enQ(msg);
+  std::cout &lt< "\n  q.size() = " << q.size();
+  BlockingQueue&ltstd::string&gt q2 = q;  <div class = "comment" style = "display : block; ">// make default copy</div>
+  std::cout &lt< "\n  q2.size() = " << q2.size();
+  std::cout &lt< "\n  q element = " << (msg = q.deQ());
+  q.enQ(msg);
+  std::cout &lt< "\n  q2 element = " << q2.deQ() << "\n";
+
+  std::cout &lt< "\n  Assigning state of BlockingQueue";
+  std::cout &lt< "\n ----------------------------------";
+  BlockingQueue&ltstd::string&gt q3;
+  q3 = q;
+  std::cout &lt< "\n  q.size() = " << q.size();
+  std::cout &lt< "\n  q3.size() = " << q3.size();
+  std::cout &lt< "\n  q element = " << q.deQ();
+  q.enQ(msg);
+  std::cout &lt< "\n  q3 element = " << q3.deQ() << "\n";
+
+  std::cout &lt< "\n\n";
+}</div>
+
+#endif
+</pre> </body> </html>

@@ -1,0 +1,127 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// ScopeStack.cpp - implements template stack holding specified element type //</div>
+<div class = "comment" style = "display : block; ">// ver 2.2                                                                   //</div>
+<div class = "comment" style = "display : block; ">// Language:      Visual C++ 2010, SP1                                       //</div>
+<div class = "comment" style = "display : block; ">// Platform:      Dell Precision T7400, Win 7 Pro SP1                        //</div>
+<div class = "comment" style = "display : block; ">// Application:   Code Analysis Research                                     //</div>
+<div class = "comment" style = "display : block; ">// Author:        Jim Fawcett, CST 4-187, Syracuse University                //</div>
+<div class = "comment" style = "display : block; ">//                (315) 443-3948, jfawcett@twcny.rr.com                      //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////////</div>
+
+<div class = "comment" style = "display : block; ">//----&lt test stub &gt------------------------------------------------------</div>
+
+#ifdef TEST_SCOPESTACK
+
+#include "ScopeStack.h"
+#include "../Utilities/Utilities.h"
+#include &ltstring&gt
+#include &ltvector&gt
+#include &ltiostream&gt
+#include &ltsstream&gt
+
+using namespace CodeAnalysis;
+
+struct element
+{
+  std::string type;
+  std::string name;
+  size_t startLineCount = 0;
+  size_t endLineCount = 0;
+  std::string path_;
+  std::string show()
+<div class = "function"style = "display : inline-block; ">  {
+    std::ostringstream temp;
+    temp &lt< "(";
+    temp &lt< type;
+    temp &lt< ", ";
+    temp &lt< name;
+    temp &lt< ", ";
+    temp &lt< startLineCount;
+    temp &lt< ", ";
+    temp &lt< endLineCount;
+    temp &lt< ")"; 
+    return temp.str();
+  }</div>
+  std::vector&ltelement*&gt children_;
+};
+
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  ScopeStack&ltelement*&gt::Rslt::attach(&std::cout);
+  ScopeStack&ltelement*&gt::Rslt::start();
+
+  using Utils = Utilities::StringHelper;
+
+  Utils::Title("Testing Scope Stack");
+
+  Utils::title("pushing items onto ScopeStack instance after adding startLineCount");
+
+  ScopeStack&ltelement*&gt testStack;
+  element* pItem = new element;
+
+  pItem-&gttype = "function";
+  pItem-&gtname = "fun1";
+  pItem-&gtstartLineCount = 33;
+  testStack.push(pItem);
+
+  pItem = new element;
+  pItem-&gttype = "if";
+  pItem-&gtname = "";
+  pItem-&gtstartLineCount = 38;
+  (testStack.top()-&gtchildren_).push_back(pItem);
+  testStack.push(pItem);
+
+  pItem = new element;
+  pItem-&gttype = "for";
+  pItem-&gtname = "";
+  pItem-&gtstartLineCount = 40;
+  (testStack.top()-&gtchildren_).push_back(pItem);
+  testStack.push(pItem);
+
+  showStack&ltelement&gt(testStack, false);
+  std::cout &lt< std::endl;
+
+  Utils::title("top and predecessor are:");
+  std::cout &lt< "\n  " << testStack.top()-&gtshow();
+  std::cout &lt< "\n  " << testStack.predOfTop()-&gtshow();
+  std::cout &lt< "\n";
+
+  Utils::title("Popping two items off ScopeStack after adding endLineCount");
+
+  testStack.top()-&gtendLineCount = 50;
+  std::cout &lt< "\n  " << testStack.pop()-&gtshow();
+  testStack.top()-&gtendLineCount = 55;
+  std::cout &lt< "\n  " << testStack.pop()-&gtshow();
+  std::cout &lt< "\n";
+
+  Utils::title("pushing another item onto ScopeStack after adding startLineElement");
+  pItem = new element;
+  pItem-&gttype = "while";
+  pItem-&gtname = "";
+  pItem-&gtstartLineCount = 60;
+  std::cout &lt< "\n  " << pItem-&gtshow();
+  (testStack.top()-&gtchildren_).push_back(pItem);
+  testStack.push(pItem);
+  std::cout &lt< "\n";
+
+  Utils::title("stack now contains:");
+  showStack&ltelement&gt(testStack, false);
+  std::cout &lt< "\n";
+
+  Utils::title("popping last elements off stack after adding endLineCount");
+  testStack.top()-&gtendLineCount = 70;
+  element* pTop = testStack.pop();
+  std::cout &lt< "\n  " << pTop-&gtshow();
+  testStack.top()-&gtendLineCount = 75;
+  pTop = testStack.pop();
+  std::cout &lt< "\n  " << pTop-&gtshow();
+  std::cout &lt< "\n";
+
+  Utils::title("walking simulated AST tree:");
+  <div class = "comment" style = "display : block; ">//TreeWalk(pTop);</div>
+  std::cout &lt< "\n\n";
+}</div>
+
+#endif
+</pre> </body> </html>

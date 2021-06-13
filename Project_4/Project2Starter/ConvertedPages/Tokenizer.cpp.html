@@ -1,0 +1,747 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Tokenizer.cpp - read words from a std::stream                   //</div>
+<div class = "comment" style = "display : block; ">// ver 4.2                                                         //</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2015                            //</div>
+<div class = "comment" style = "display : block; ">// Platform:    Dell XPS 8900, Windows 10                          //</div>
+<div class = "comment" style = "display : block; ">// Application: Parser component, CSE687 - Object Oriented Design  //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187        //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                              //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+
+#include &ltiostream&gt
+#include &ltlocale&gt
+#include &ltstring&gt
+#include &ltvector&gt
+#include "Tokenizer.h"
+#include "..\Utilities\Utilities.h"
+
+namespace Scanner
+{
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// Context is a shared data storage facility.</div>
+  <div class = "comment" style = "display : block; ">/*
+   * - with Context we don't need static members to share
+   *   state pointes etc.  Context holds and shares all that.
+   * - Context is an entirely private facility used by ConsumeState
+   *   and its derived instances, so there is no need for encapsulation
+   *   and we use a struct.  This won't be appropriate if we handed
+   *   the context to clients of Toker.
+   */</div>
+  struct Context
+  {
+    Context();
+    ~Context();
+    std::string token;
+    std::istream* _pIn;
+    std::vector&ltstd::string&gt _oneCharTokens =
+    {
+      "\n", "&lt", "&gt", "{", "}", "[", "]", "(", ")", ":", ";", " = ", " + ", " - ", "*", ".", ",", "@"
+    };
+    std::vector&ltstd::string&gt _twoCharTokens =
+    {
+      "&lt<", "&gt>", "::", "++", "--", "==", "+=", "-=", "*=", "/="
+    };
+    int prevChar;
+    int currChar;
+    bool _doReturnComments;
+    bool inCSharpString = false;
+    size_t _lineCount;
+    ConsumeState* _pState;
+    ConsumeState* _pEatCppComment;
+    ConsumeState* _pEatCComment;
+    ConsumeState* _pEatWhitespace;
+    ConsumeState* _pEatPunctuator;
+    ConsumeState* _pEatAlphanum;
+    ConsumeState* _pEatSpecialCharacters;
+    ConsumeState* _pEatDQString;
+    ConsumeState* _pEatSQString;
+    ConsumeState* _pEatRawCppString;
+    ConsumeState* _pEatRawCSharpString;
+  };
+
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// private ConsumeState worker class</div>
+  <div class = "comment" style = "display : block; ">/*
+   *   Nota Bene:
+   *   - At exit the eatChars() member should return with
+   *     currChar set to the first non-state character.
+   *   - Each derived class must insure that this condition
+   *     is meet.
+   */</div>
+  class ConsumeState
+<div class = "class"style = "display : inline-block; ">  {
+    friend class Toker;
+  public:
+    using Token = std::string;
+    ConsumeState();
+    ConsumeState(const ConsumeState&) = delete;
+    ConsumeState& operator=(const ConsumeState&) = delete;
+    virtual ~ConsumeState();
+    void attach(std::istream* pIn);
+    virtual void eatChars() = 0;
+<div class = "function"style = "display : inline-block; ">    void consumeChars() {
+      _pContext-&gt_pState->eatChars();
+      _pContext-&gt_pState = nextState();
+    }</div>
+<div class = "function"style = "display : inline-block; ">    bool canRead() { return _pContext-&gt_pIn->good(); }</div>
+<div class = "function"style = "display : inline-block; ">    std::string getTok() { return _pContext-&gttoken; }</div>
+<div class = "function"style = "display : inline-block; ">    bool hasTok() { return _pContext-&gttoken.size() > 0; }</div>
+    ConsumeState* nextState();
+    void returnComments(bool doReturnComments = false);
+    size_t currentLineCount();
+    void setSpecialTokens(const std::string& commaSeparatedString);
+    void setContext(Context* pContext);
+  protected:
+    Context* _pContext;
+    bool collectChar();
+    bool isOneCharToken(Token tok);
+    bool isTwoCharToken(Token tok);
+    Token makeString(int ch);
+  };</div>
+}
+
+using namespace Scanner;
+using Token = std::string;
+
+<div class = "comment" style = "display : block; ">//----&lt used by Toker to provide Consumer with Context ptr &gt---------</div>
+
+void ConsumeState::setContext(Context* pContext)
+<div class = "function"style = "display : inline-block; ">{
+  _pContext = pContext;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt attach or re-attach to input stream &gt------------------------</div>
+
+void ConsumeState::attach(std::istream* pIn)
+<div class = "function"style = "display : inline-block; ">{
+  _pContext-&gt_pState = _pContext->_pEatWhitespace;
+  _pContext-&gt_lineCount = 0;
+  _pContext-&gt_pIn = pIn;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt replace one and two char tokens &gt----------------------------</div>
+
+void ConsumeState::setSpecialTokens(const std::string& commaSeparatedTokens)
+<div class = "function"style = "display : inline-block; ">{
+  std::vector&ltToken&gt result = Utilities::StringHelper::split(commaSeparatedTokens);
+  _pContext-&gt_oneCharTokens.clear();
+  _pContext-&gt_twoCharTokens.clear();
+  for (std::string item : result)
+  {
+    if (item.size() == 1 || item == "\n")
+      _pContext-&gt_oneCharTokens.push_back(item);
+    if (item.size() &gt= 2)
+      _pContext-&gt_twoCharTokens.push_back(item);
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return number of newlines collected from stream &gt------------</div>
+
+<div class = "function"style = "display : inline-block; ">size_t ConsumeState::currentLineCount() { return _pContext-&gt_lineCount; }</div>
+
+<div class = "comment" style = "display : block; ">//----&lt collect character from stream &gt------------------------------</div>
+
+bool ConsumeState::collectChar()
+<div class = "function"style = "display : inline-block; ">{
+  if (_pContext-&gt_pIn->good())
+  {
+    _pContext-&gtprevChar = _pContext->currChar;
+    _pContext-&gtcurrChar = _pContext->_pIn->get();
+    if (_pContext-&gtcurrChar == '\n')
+      ++(_pContext-&gt_lineCount);
+    return true;
+  }
+  return false;
+}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt logs to console if TEST_LOG is defined &gt---------------------</div>
+
+void testLog(const std::string& msg);  <div class = "comment" style = "display : block; ">// forward declaration</div>
+
+<div class = "comment" style = "display : block; ">//----&lt turn on\off returning comments as tokens &gt-------------------</div>
+
+void ConsumeState::returnComments(bool doReturnComments)
+<div class = "function"style = "display : inline-block; ">{
+  _pContext-&gt_doReturnComments = doReturnComments;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is tok one of the special one character tokens? &gt------------</div>
+
+bool ConsumeState::isOneCharToken(Token tok)
+<div class = "function"style = "display : inline-block; ">{
+  for (size_t i = 0; i &lt _pContext-&gt_oneCharTokens.size(); ++i)
+    if (_pContext-&gt_oneCharTokens[i] == tok)
+      return true;
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is tok one of the special two character tokens? &gt------------</div>
+
+bool ConsumeState::isTwoCharToken(Token tok)
+<div class = "function"style = "display : inline-block; ">{
+  for (size_t i = 0; i &lt _pContext-&gt_twoCharTokens.size(); ++i)
+    if (_pContext-&gt_twoCharTokens[i] == tok)
+      return true;
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt make a string with this one integer &gt------------------------</div>
+
+ConsumeState::Token ConsumeState::makeString(int ch)
+<div class = "function"style = "display : inline-block; ">{
+  Token temp;
+  return temp += ch;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt decide which state to use next &gt-----------------------------</div>
+
+ConsumeState* ConsumeState::nextState()
+<div class = "function"style = "display : inline-block; ">{
+  std::locale loc;
+
+  if (!(_pContext-&gt_pIn->good()))
+  {
+    return nullptr;
+  }
+  int chNext = _pContext-&gt_pIn->peek();
+  if (chNext == EOF)
+  {
+    _pContext-&gt_pIn->clear();
+    <div class = "comment" style = "display : block; ">// if peek() reads end of file character, EOF, then eofbit is set and</div>
+    <div class = "comment" style = "display : block; ">// _pIn-&gtgood() will return false.  clear() restores state to good</div>
+  }
+  <div class = "comment" style = "display : block; ">//---------------------------------------------------------</div>
+  <div class = "comment" style = "display : block; ">// The following tests must come first</div>
+
+  if (_pContext-&gtcurrChar == '\"' && _pContext->prevChar != '\\')
+  {
+    testLog("state: eatDQString");
+    return _pContext-&gt_pEatDQString;
+  }
+  if (_pContext-&gtcurrChar == '\'' && _pContext->prevChar != '\\')
+  {
+    testLog("state: eatSQString");
+    return _pContext-&gt_pEatSQString;
+  }
+  if (_pContext-&gtcurrChar == '/' && chNext == '/')
+  {
+    testLog("state: eatCppComment");
+    return _pContext-&gt_pEatCppComment;
+  }
+  if (_pContext-&gtcurrChar == '/' && chNext == '*')
+  {
+    testLog("state: eatCComment");
+    return _pContext-&gt_pEatCComment;
+  }
+  if (_pContext-&gtcurrChar == 'R' && chNext == '\"')
+  {
+    testLog("state: eatRawCppString");
+    return _pContext-&gt_pEatRawCppString;
+  }
+  if (_pContext-&gtcurrChar == '@' && chNext == '\"')
+  {
+    testLog("state: eatRawCSharpString");
+    return _pContext-&gt_pEatRawCSharpString;
+  }
+  <div class = "comment" style = "display : block; ">//---------------------------------------------------------</div>
+  <div class = "comment" style = "display : block; ">// The following tests must come after those above</div>
+
+  if (isOneCharToken(makeString(_pContext-&gtcurrChar)))
+  {
+    testLog("state: eatSpecialCharacters");
+    return _pContext-&gt_pEatSpecialCharacters;
+  }
+  if (std::isspace(_pContext-&gtcurrChar, loc) && _pContext->currChar != '\n')
+  {
+    testLog("state: eatWhitespace");
+    return _pContext-&gt_pEatWhitespace;
+  }
+  if (std::isalnum(_pContext-&gtcurrChar, loc) || _pContext->currChar == '_')
+  {
+    testLog("state: eatAlphanum");
+    return _pContext-&gt_pEatAlphanum;
+  }
+  if (ispunct(_pContext-&gtcurrChar))
+  {
+    testLog("state: eatPunctuator");
+    return _pContext-&gt_pEatPunctuator;
+  }
+  if (!_pContext-&gt_pIn->good())
+  {
+    testLog("state: eatWhitespace");
+    return _pContext-&gt_pEatWhitespace;
+  }
+  <div class = "comment" style = "display : block; ">//---------------------------------------------------------</div>
+  <div class = "comment" style = "display : block; ">// If _pContext-&gtcurrChar is not a state transition char</div>
+  <div class = "comment" style = "display : block; ">// then we go to eatPuctuator state</div>
+
+  return _pContext-&gt_pEatPunctuator;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt class that consumes whitespace &gt-----------------------------</div>
+
+class EatWhitespace : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatWhitespace(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    std::locale loc;
+    _pContext-&gttoken.clear();
+    do {
+      if (!collectChar())
+        return;
+    } while (std::isspace(_pContext-&gtcurrChar, loc) && _pContext->currChar != '\n');
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that consumes C++ comment &gt----------------------------</div>
+
+class EatCppComment : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatCppComment(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    do {
+      if (_pContext-&gt_doReturnComments)
+        _pContext-&gttoken += _pContext->currChar;
+      if (!collectChar())
+        return;
+    } while (_pContext-&gtcurrChar != '\n');
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that consumes C comment &gt------------------------------</div>
+
+class EatCComment : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatCComment(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    do {
+      if (_pContext-&gt_doReturnComments)
+        _pContext-&gttoken += _pContext->currChar;
+      if (!collectChar())
+        return;
+    } while (_pContext-&gtcurrChar != '*' || _pContext->_pIn->peek() != '/');
+    if (_pContext-&gt_doReturnComments)
+      _pContext-&gttoken += _pContext->currChar;
+    if (!collectChar())      <div class = "comment" style = "display : block; ">// get terminating '/'</div>
+      return;
+    if (_pContext-&gt_doReturnComments)
+      _pContext-&gttoken += _pContext->currChar;
+    collectChar();           <div class = "comment" style = "display : block; ">// get first non-comment char</div>
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats punctuators &gt--------------------------------</div>
+
+class EatPunctuator : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatPunctuator(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    int chNext = _pContext-&gt_pIn->peek();
+    do {
+      if (_pContext-&gtcurrChar == '\"' && _pContext->prevChar != '\\')    <div class = "comment" style = "display : block; ">// start of double quoted string</div>
+      {
+        return;
+      }
+      if (_pContext-&gtcurrChar == '@' && chNext == '\"')    <div class = "comment" style = "display : block; ">// start of raw C# double quoted string</div>
+      {
+        return;
+      }
+      if (_pContext-&gtcurrChar == '\'' && _pContext->prevChar != '\\')    <div class = "comment" style = "display : block; ">// start of single quoted string</div>
+      {
+        return;
+      }
+      Token temp = makeString(_pContext-&gtcurrChar);
+      if (isOneCharToken(temp))
+      {
+        return;
+      }
+      _pContext-&gttoken += _pContext->currChar;
+      if (!_pContext-&gt_pIn->good())  <div class = "comment" style = "display : block; ">// end of stream</div>
+      {
+        return;
+      }
+      if (!collectChar())
+        return;
+    } while (ispunct(_pContext-&gtcurrChar));
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats alphanumeric characters &gt--------------------</div>
+<div class = "comment" style = "display : block; ">/*
+ * treats underscore '_' as alphanumeric character
+ */</div>
+class EatAlphanum : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatAlphanum(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    int chNext = _pContext-&gt_pIn->peek();
+    do {
+      _pContext-&gttoken += _pContext->currChar;
+      if (!collectChar())
+        return;
+    } while (isalnum(_pContext-&gtcurrChar) || _pContext->currChar == '_');
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats one and two character tokens &gt---------------</div>
+
+class EatSpecialCharacters : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatSpecialCharacters(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    _pContext-&gttoken += _pContext->currChar;
+    Token temp = makeString(_pContext-&gtcurrChar) += _pContext->_pIn->peek();
+    if (isTwoCharToken(temp))
+    {
+      collectChar();
+      _pContext-&gttoken += _pContext->currChar;
+    }
+    collectChar();
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats double quoted string &gt-----------------------</div>
+
+bool isEscapted(std::string tok)
+<div class = "function"style = "display : inline-block; ">{
+  size_t backSlashCount = 0;
+  for (size_t i = tok.size() - 1; i &gt= 0; --i)
+  {
+    if (tok[i] == '\\')
+      ++backSlashCount;
+    else break;
+  }
+  return (backSlashCount % 2 == 1);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats double quoted string &gt-----------------------</div>
+
+class EatDQString : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatDQString(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    do
+    {
+      _pContext-&gttoken += _pContext->currChar;
+      if (!collectChar())
+        return;
+    } while (_pContext-&gtcurrChar != '\"' || isEscapted(_pContext->token));
+    _pContext-&gttoken += _pContext->currChar;
+    _pContext-&gtinCSharpString = false;
+    collectChar();
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats double quoted string &gt-----------------------</div>
+
+class EatRawCppString : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatRawCppString(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    do
+    {
+      _pContext-&gttoken += _pContext->currChar;
+      if (!collectChar())
+        return;
+    } while (_pContext-&gtcurrChar != '\"' || _pContext->prevChar == 'R');
+    _pContext-&gttoken += _pContext->currChar;
+    collectChar();
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats double quoted string &gt-----------------------</div>
+
+class EatRawCSharpString : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatRawCSharpString(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    do
+    {
+      _pContext-&gttoken += _pContext->currChar;
+      if (!collectChar())
+        return;
+    } while (_pContext-&gtcurrChar != '\"' || _pContext->prevChar == '@');
+    _pContext-&gttoken += _pContext->currChar;
+    collectChar();
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt class that eats single quoted string &gt-----------------------</div>
+
+class EatSQString : public ConsumeState
+<div class = "class"style = "display : inline-block; ">{
+public:
+  EatSQString(Context* pContext)
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext = pContext;
+  }</div>
+  virtual void eatChars()
+<div class = "function"style = "display : inline-block; ">  {
+    _pContext-&gttoken.clear();
+    do
+    {
+      _pContext-&gttoken += _pContext->currChar;
+      if (!collectChar())
+        return;
+    } while (_pContext-&gtcurrChar != '\'' || isEscapted(_pContext->token));
+    _pContext-&gttoken += _pContext->currChar;
+    collectChar();
+  }</div>
+};</div>
+<div class = "comment" style = "display : block; ">//----&lt construct shared data storage &gt------------------------------</div>
+
+Context::Context()
+<div class = "function"style = "display : inline-block; ">{
+  _pEatAlphanum = new EatAlphanum(this);
+  _pEatCComment = new EatCComment(this);
+  _pEatCppComment = new EatCppComment(this);
+  _pEatPunctuator = new EatPunctuator(this);
+  _pEatWhitespace = new EatWhitespace(this);
+  _pEatSpecialCharacters = new EatSpecialCharacters(this);
+  _pEatDQString = new EatDQString(this);
+  _pEatRawCppString = new EatRawCppString(this);
+  _pEatRawCSharpString = new EatRawCSharpString(this);
+  _pEatSQString = new EatSQString(this);
+  _pState = _pEatWhitespace;
+  _lineCount = 0;
+  _doReturnComments = false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return shared resources &gt------------------------------------</div>
+
+Context::~Context()
+<div class = "function"style = "display : inline-block; ">{
+  delete _pEatAlphanum;
+  delete _pEatCComment;
+  delete _pEatCppComment;
+  delete _pEatPunctuator;
+  delete _pEatWhitespace;
+  delete _pEatSpecialCharacters;
+  delete _pEatDQString;
+  delete _pEatRawCppString;
+  delete _pEatRawCSharpString;
+  delete _pEatSQString;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt no longer has anything to do - will be removed &gt-------------</div>
+
+<div class = "function"style = "display : inline-block; ">ConsumeState::ConsumeState() {}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt no longer has anything to do - will be removed &gt-------------</div>
+
+<div class = "function"style = "display : inline-block; ">ConsumeState::~ConsumeState() {}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt construct toker starting in state EatWhitespace &gt------------</div>
+
+Toker::Toker()
+<div class = "function"style = "display : inline-block; ">{
+  _pContext = new Context();
+  pConsumer = _pContext-&gt_pEatWhitespace;
+  pConsumer-&gtsetContext(_pContext);
+}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt destructor deletes the current state &gt-----------------------</div>
+<div class = "comment" style = "display : block; ">/*
+ * deleting any state deletes them all since derived destructor
+ * implicitly invokes the base destructor
+ */</div>
+Toker::~Toker() 
+<div class = "function"style = "display : inline-block; ">{
+  delete _pContext;
+  _pContext = nullptr;
+}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt attach tokenizer to stream &gt---------------------------------</div>
+<div class = "comment" style = "display : block; ">/*
+ * stream can be either a std::fstream or std::stringstream
+ */</div>
+bool Toker::attach(std::istream* pIn)
+<div class = "function"style = "display : inline-block; ">{
+  if (pIn != nullptr && pIn-&gtgood())
+  {
+    pConsumer-&gtattach(pIn);
+    <div class = "comment" style = "display : block; ">//_pContext-&gt_pIn = pIn;</div>
+    return true;
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt collect token generated by ConsumeState &gt--------------------</div>
+
+std::string Toker::getTok()
+<div class = "function"style = "display : inline-block; ">{
+  while(true) 
+  {
+    if (!pConsumer-&gtcanRead())
+      return "";
+    pConsumer-&gtconsumeChars();
+    if (pConsumer-&gthasTok())
+      break;
+  }
+  return pConsumer-&gtgetTok();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt has toker reached the end of its stream? &gt-------------------</div>
+
+<div class = "function"style = "display : inline-block; ">bool Toker::canRead() { return pConsumer-&gtcanRead(); }</div>
+
+<div class = "comment" style = "display : block; ">//----&lt start/stop returning comments as tokens &gt--------------------</div>
+
+void Toker::returnComments(bool doReturnComments)
+<div class = "function"style = "display : inline-block; ">{
+  pConsumer-&gtreturnComments(doReturnComments);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is this token a comment? &gt-----------------------------------</div>
+
+bool Toker::isComment(const std::string& tok)
+<div class = "function"style = "display : inline-block; ">{
+  if (tok.find("<div class = "comment" style = "display : block; ">//") &lt tok.size() || tok.find("<div class = "comment" style = "display : block; ">/*") < tok.size())</div>
+    return true;
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return number of newlines pulled from stream &gt---------------</div>
+
+size_t Toker::currentLineCount()
+<div class = "function"style = "display : inline-block; ">{
+  return pConsumer-&gtcurrentLineCount();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt set one and two char tokens &gt--------------------------------</div>
+
+void Toker::setSpecialTokens(const std::string& commaSeparatedTokens)
+<div class = "function"style = "display : inline-block; ">{
+  pConsumer-&gtsetSpecialTokens(commaSeparatedTokens);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt debugging output to console if TEST_LOG is #defined &gt--------</div>
+
+void testLog(const std::string& msg)
+<div class = "function"style = "display : inline-block; ">{
+#ifdef TEST_LOG
+  std::cout &lt< "\n  " << msg;
+#endif
+}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt test stub &gt--------------------------------------------------</div>
+
+using Helper = Utilities::StringHelper;
+using namespace Utilities;
+
+#ifdef TEST_TOKENIZER
+
+#include &ltfstream&gt
+#include &ltexception&gt
+
+
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  Helper::Title("Testing Tokenizer");
+
+  <div class = "comment" style = "display : block; ">//std::string fileSpec = "../Tokenizer/Tokenizer.cpp";</div>
+  <div class = "comment" style = "display : block; ">//std::string fileSpec = "../Tokenizer/Tokenizer.h";</div>
+  std::string fileSpec = "../Tokenizer/Test.txt";
+  <div class = "comment" style = "display : block; ">//std::string fileSpec = "../SemiExp/SemiExp.h";</div>
+  try
+  {
+    std::ifstream in(fileSpec);
+    if (!in.good())
+    {
+      std::cout &lt< "\n  can't open " << fileSpec << "\n\n";
+      return 1;
+    }
+
+    {
+      Toker toker;
+      toker.returnComments();
+      toker.attach(&in);
+      std::cout &lt< "\n  current line count = " << toker.currentLineCount();
+      do
+      {
+        std::string tok = toker.getTok();
+        if (tok == "\n")
+          tok = "newline";
+        std::cout &lt< "\n -- " << tok;
+      } while (in.good());
+      std::cout &lt< "\n  current line count = " << toker.currentLineCount();
+    }
+ 
+    putline();
+    Helper::title("Testing change of special characters");
+    std::string newSpecialChars = "., :, +, +=, \n { }";
+
+    Toker toker;
+    toker.returnComments();
+    toker.setSpecialTokens(newSpecialChars);
+    in.clear();
+
+    in.seekg(std::ios::beg);
+    toker.attach(&in);
+    std::cout &lt< "\n  new special tokens: " << newSpecialChars;
+    do
+    {
+      std::string tok = toker.getTok();
+      if (tok == "\n")
+        tok = "newline";
+      std::cout &lt< "\n -- " << tok;
+    } while (in.good());
+    std::cout &lt< "\n  current line count = " << toker.currentLineCount() << "\n";
+
+    <div class = "comment" style = "display : block; ">//Helper::title("Testing re-attach:");</div>
+    <div class = "comment" style = "display : block; ">//std::string path = "../Tokenizer/Tokenizer.h";</div>
+    <div class = "comment" style = "display : block; ">//std::ifstream inAgain(path);</div>
+    <div class = "comment" style = "display : block; ">//if (inAgain.good())</div>
+    <div class = "comment" style = "display : block; ">//{</div>
+    <div class = "comment" style = "display : block; ">//  toker.attach(&inAgain);</div>
+    <div class = "comment" style = "display : block; ">//  do</div>
+    <div class = "comment" style = "display : block; ">//  {</div>
+    <div class = "comment" style = "display : block; ">//    std::string tok = toker.getTok();</div>
+    <div class = "comment" style = "display : block; ">//    if (tok == "\n")</div>
+    <div class = "comment" style = "display : block; ">//      tok = "newline";</div>
+    <div class = "comment" style = "display : block; ">//    std::cout &lt< "\n -- " << tok;</div>
+    <div class = "comment" style = "display : block; ">//  } while (inAgain.good());</div>
+    <div class = "comment" style = "display : block; ">//  std::cout &lt< "\n  current line count = " << toker.currentLineCount();</div>
+    <div class = "comment" style = "display : block; ">//}</div>
+    <div class = "comment" style = "display : block; ">//else</div>
+    <div class = "comment" style = "display : block; ">//{</div>
+    <div class = "comment" style = "display : block; ">//  std::cout &lt< "\n  can't attach to " << path << "\n";</div>
+    <div class = "comment" style = "display : block; ">//}</div>
+  }
+  catch (std::logic_error& ex)
+  {
+    std::cout &lt< "\n  " << ex.what();
+  }
+  std::cout &lt< "\n\n";
+  return 0;
+}</div>
+#endif
+</pre> </body> </html>

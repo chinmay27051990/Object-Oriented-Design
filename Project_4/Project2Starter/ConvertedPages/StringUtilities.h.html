@@ -1,0 +1,154 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#ifndef STRINGUTILITIES_H
+#define STRINGUTILITIES_H
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// StringUtilities.h - small, generally useful, helper classes       //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                           //</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2017                              //</div>
+<div class = "comment" style = "display : block; ">// Application: Most Projects, CSE687 - Object Oriented Design       //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187          //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                                //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+* Package Operations:
+* -------------------
+* This package provides functions:
+* - Title(text)           display title
+* - title(text)           display subtitle
+* - putline(n)            display n newlines
+* - trim(str)             remove leading and trailing whitespace
+* - split(str, 'delim')   break string into vector of strings separated by delim char 
+* - showSplit(vector)     display splits
+*
+* Required Files:
+* ---------------
+*   StringUtilities.h
+*
+* Maintenance History:
+* --------------------
+* ver 1.0 : 12 Jan 2018
+* - first release
+* - refactored from earlier Utilities.h
+*
+* Notes:
+* ------
+* - Designed to provide all functionality in header file.
+* - Implementation file only needed for test and demo.
+*
+* Planned Additions and Changes:
+* ------------------------------
+* - none yet
+*/</div>
+#include &ltstring&gt
+#include &ltvector&gt
+#include &ltiostream&gt
+#include &ltsstream&gt
+#include &ltfunctional&gt
+#include &ltlocale&gt
+
+namespace Utilities
+{
+  <div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// String Helper functions</div>
+ 
+  <div class = "comment" style = "display : block; ">//----&lt display underlined title &gt-----------------------------------</div>
+
+  inline void Title(const std::string& text, std::ostream& out = std::cout, char underline = '=')
+<div class = "function"style = "display : inline-block; ">  {
+    out &lt< "\n  " << text;
+    out &lt< "\n " << std::string(text.size() + 2, underline);
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt display underlined subtitle &gt--------------------------------</div>
+
+  inline void title(const std::string& text, std::ostream& out = std::cout, char underline = '-')
+<div class = "function"style = "display : inline-block; ">  {
+    out &lt< "\n  " << text;
+    out &lt< "\n " << std::string(text.size() + 2, underline);
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt display j newlines &gt-----------------------------------------</div>
+
+  inline void putline(size_t j = 1, std::ostream& out = std::cout)
+<div class = "function"style = "display : inline-block; ">  {
+    for (size_t i = 0; i &lt j; ++i)
+      out &lt< "\n";
+  }</div>
+  <div class = "comment" style = "display : block; ">/*--- remove whitespace from front and back of string argument ---*/</div>
+  <div class = "comment" style = "display : block; ">/*
+  *  - does not remove newlines
+  */</div>
+  template &lttypename T&gt
+  inline std::basic_string&ltT&gt trim(const std::basic_string<T>& toTrim)
+<div class = "function"style = "display : inline-block; ">  {
+    if (toTrim.size() == 0)
+      return toTrim;
+    std::basic_string&ltT&gt temp;
+    std::locale loc;
+    typename std::basic_string&ltT&gt::const_iterator iter = toTrim.begin();
+    while (isspace(*iter, loc) && *iter != '\n')
+    {
+      if (++iter == toTrim.end())
+      {
+        break;
+      }
+    }
+    for (; iter != toTrim.end(); ++iter)
+    {
+      temp += *iter;
+    }
+    typename std::basic_string&ltT&gt::reverse_iterator riter;
+    size_t pos = temp.size();
+    for (riter = temp.rbegin(); riter != temp.rend(); ++riter)
+    {
+      --pos;
+      if (!isspace(*riter, loc) || *riter == '\n')
+      {
+        break;
+      }
+    }
+    if (0 &lt= pos && pos < temp.size())
+      temp.erase(++pos);
+    return temp;
+  }</div>
+
+  <div class = "comment" style = "display : block; ">/*--- split sentinel separated strings into a vector of trimmed strings ---*/</div>
+
+  template &lttypename T&gt
+  inline std::vector&ltstd::basic_string<T&gt> split(const std::basic_string<T>& toSplit, T splitOn = ',')
+<div class = "function"style = "display : inline-block; ">  {
+    std::vector&ltstd::basic_string<T&gt> splits;
+    std::basic_string&ltT&gt temp;
+    typename std::basic_string&ltT&gt::const_iterator iter;
+    for (iter = toSplit.begin(); iter != toSplit.end(); ++iter)
+    {
+      if (*iter != splitOn)
+      {
+        temp += *iter;
+      }
+      else
+      {
+        splits.push_back(trim(temp));
+        temp.clear();
+      }
+    }
+    if (temp.length() &gt 0)
+      splits.push_back(trim(temp));
+    return splits;
+  }</div>
+  <div class = "comment" style = "display : block; ">/*--- show collection of string splits ------------------------------------*/</div>
+
+  template &lttypename T&gt
+  inline void showSplits(const std::vector&ltstd::basic_string<T&gt>& splits, std::ostream& out = std::cout)
+<div class = "function"style = "display : inline-block; ">  {
+    out &lt< "\n";
+    for (auto item : splits)
+    {
+      if (item == "\n")
+        out &lt< "\n--" << "newline";
+      else
+        out &lt< "\n--" << item;
+    }
+    out &lt< "\n";
+  }</div>
+}
+#endif
+</pre> </body> </html>

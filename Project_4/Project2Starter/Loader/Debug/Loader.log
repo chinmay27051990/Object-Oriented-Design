@@ -1,0 +1,8 @@
+﻿  CodeUtilities.cpp
+  DirExplorerN.cpp
+  StringUtilities.cpp
+  Loader.cpp
+  Generating Code...
+StringUtilities.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+CodeUtilities.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+  Loader.vcxproj -> C:\Users\Kuldeep\Desktop\Project2Starter\Debug\Loader.lib

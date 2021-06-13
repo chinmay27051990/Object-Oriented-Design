@@ -1,0 +1,113 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#ifndef PARSER_H
+#define PARSER_H
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">//  Parser.h - Analyzes C++ and C# language constructs             //</div>
+<div class = "comment" style = "display : block; ">//  ver 1.0                                                        //</div>
+<div class = "comment" style = "display : block; ">//  Language:      Visual C++, Visual Studio 2015                  //</div>
+<div class = "comment" style = "display : block; ">//  Platform:      Dell XPS 8920, Windows 10                       //</div>
+<div class = "comment" style = "display : block; ">//  Application:   Prototype for CSE687 - OOD Projects             //</div>
+<div class = "comment" style = "display : block; ">//  Author:        Jim Fawcett, CST 4-187, Syracuse University     //</div>
+<div class = "comment" style = "display : block; ">//                 (315) 443-3948, jfawcett@twcny.rr.com           //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+  Module Operations: 
+  ==================
+  This module defines a Parser class.  Its instances collect 
+  semi-expressions from one or more files for analysis.  
+  Analysis consists of applying a set of rules to the semi-expression, 
+  and for each rule that matches, invoking a set of one or more actions.
+
+  Build Process:
+  ==============
+  Required files
+    - Parser.h, Parser.cpp, 
+    - ITokenCollection.h, 
+    - Semi.h, Semi.cpp,
+    - toker.h, toker.cpp,
+    - ActionsAndRules.h, ActionsAndRules.cpp,
+    - GrammarHelpers.h, GrammarHelpers.cpp,
+    - AbstrSynTree.h, AbstrSynTree.cpp,
+    - ScopeStack.h, ScopeStack.cpp
+    - ConfigureParser.h, ConfigureParser.cpp,
+    - FileSystem.h, FileSystem.cpp,
+    - Logger.h, Logger.cpp,
+    - Utilities.h, Utilities.cpp
+
+  Maintenance History:
+  ===================
+  ver 1.0 : 11 Feb 2019
+  - first release
+  - This is a modification of the parser used in CodeAnalyzer.
+  - The most important change is replacing its tokenizer with a 
+    State Pattern based design
+
+*/</div>
+
+#include &ltstring&gt
+#include &ltiostream&gt
+#include &ltvector&gt
+#include "../SemiExpression/ITokenCollection.h"
+
+namespace CodeAnalysis
+{
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// abstract base class for parsing actions</div>
+  <div class = "comment" style = "display : block; ">//   - when a rule succeeds, it invokes any registered action</div>
+
+  class Parser;
+
+  class IBuilder
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+<div class = "function"style = "display : inline-block; ">    virtual ~IBuilder() {}</div>
+    virtual Parser* Build() = 0;
+  };</div>
+
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// abstract base class for parsing actions</div>
+  <div class = "comment" style = "display : block; ">//   - when a rule succeeds, it invokes any registered action</div>
+
+  class IAction
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+<div class = "function"style = "display : inline-block; ">    virtual ~IAction() {}</div>
+    virtual void doAction(const Lexer::ITokenCollection* pTc) = 0;
+  };</div>
+
+  <div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+  <div class = "comment" style = "display : block; ">// abstract base class for parser language construct detections</div>
+  <div class = "comment" style = "display : block; ">//   - rules are registered with the parser for use</div>
+
+  class IRule
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    static const bool Continue = true;
+    static const bool Stop = false;
+<div class = "function"style = "display : inline-block; ">    virtual ~IRule() {}</div>
+    void addAction(IAction* pAction);
+    void doActions(const Lexer::ITokenCollection* pTc);
+    virtual bool doTest(const Lexer::ITokenCollection* pTc) = 0;
+  protected:
+    std::vector&ltIAction*&gt actions;
+  };</div>
+
+  class Parser
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    Parser(Lexer::ITokenCollection* pTokCollection);
+    ~Parser();
+    void addRule(IRule* pRule);
+    bool parse();
+    bool next();
+  private:
+    Lexer::ITokenCollection* pTokColl;
+    std::vector&ltIRule*&gt rules;
+  };</div>
+
+<div class = "function"style = "display : inline-block; ">  inline Parser::Parser(Lexer::ITokenCollection* pTokCollection) : pTokColl(pTokCollection) {}</div>
+
+<div class = "function"style = "display : inline-block; ">  inline Parser::~Parser() {}</div>
+}
+#endif
+</pre> </body> </html>

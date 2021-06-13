@@ -1,0 +1,178 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">//  AbstrSynTree.h - Represents an Abstract Syntax Tree            //</div>
+<div class = "comment" style = "display : block; ">//  ver 1.4                                                        //</div>
+<div class = "comment" style = "display : block; ">//  Language:      Visual C++ 2015                                 //</div>
+<div class = "comment" style = "display : block; ">//  Platform:      Dell XPS 8900, Windows 10                       //</div>
+<div class = "comment" style = "display : block; ">//  Application:   Used to support parsing source code             //</div>
+<div class = "comment" style = "display : block; ">//  Author:        Jim Fawcett, CST 4-187, Syracuse University     //</div>
+<div class = "comment" style = "display : block; ">//                 (315) 443-3948, jfawcett@twcny.rr.com           //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+  Package Operations:
+  ==================
+  This package defines an AbstrSynTree class and an ASTNode struct.  
+  Those provides support for building Abstract Syntax Trees during 
+  static source code analysis.
+
+  Public Interface:
+  =================
+  AbstrSynTree ast(scopeStack);       <div class = "comment" style = "display : block; ">// create instance, passing in ScopeStack</div>
+  ASTNode* pNode = ast.root();        <div class = "comment" style = "display : block; ">// get or set root of AST</div>
+  ast.add(pNode);                     <div class = "comment" style = "display : block; ">// add ASTNode to tree, linked to current scope</div>
+  ASTNode* pNode = ast.find(myType);  <div class = "comment" style = "display : block; ">// retrieve ptr to ASTNode representing myType</div>
+  ast.pop();                          <div class = "comment" style = "display : block; ">// close current scope by poping top of scopeStack</div>
+
+  Build Process:
+  ==============
+  Required files
+  - AbstrSynTree.h, AbstrSynTree.cpp, Utilities.h, Utilities.cpp
+
+  Build commands (either one)
+  - devenv CodeAnalysis.sln
+  - cl /EHsc /DTEST_ABSTRSYNTREE AbstrSynTree.cpp Utilities.cpp /link setargv.obj
+
+  Maintenance History:
+  ====================
+  ver 1.4 : 26 Feb 2017
+  - added parentType_ member to support better grammar analysis
+  ver 1.3 : 29 Oct 2016
+  - added throw in ScopeStack if pop or peek empty stack
+  ver 1.2 : 28 Oct 2016
+  - added test for interface in show() and Add(ASTNode*)
+  ver 1.1 : 22 Aug 2016
+  - added access type and declaration type enumerations
+  - added processing to store access level in AST
+  - added more prologue comments
+  ver 1.0 : 05 Aug 2016
+  - first release
+
+*/</div>
+
+#include &ltstring&gt
+#include &ltvector&gt
+#include &ltsstream&gt
+#include &ltunordered_map&gt
+#include &ltfunctional&gt
+#include "../SemiExpression/ITokenCollection.h"
+#include "../ScopeStack/ScopeStack.h"
+
+namespace CodeAnalysis
+{
+  enum Access 
+  { 
+    publ, prot, priv 
+  };
+
+  enum DeclType 
+  { 
+    dataDecl, functionDecl, lambdaDecl, usingDecl 
+  };
+
+  struct DeclarationNode
+  {
+    Lexer::ITokenCollection* pTc = nullptr;
+    Access access_;
+    DeclType declType_;
+    std::string package_;
+    size_t line_;
+  };
+
+  struct ASTNode
+  {
+    using Type = std::string;
+    using Name = std::string;
+    using Package = std::string;
+    using Path = std::string;
+
+    ASTNode();
+    ASTNode(const Type& type, const Name& name);
+    ~ASTNode();
+    Type type_;
+    Type parentType_;
+    Name name_;
+    Package package_;
+    Path path_;
+    size_t startLineCount_;
+    size_t endLineCount_;
+    size_t complexity_;
+    std::vector&ltASTNode*&gt children_;
+    std::vector&ltDeclarationNode&gt decl_;
+    std::vector&ltLexer::ITokenCollection*&gt statements_;
+    std::string show(bool details = false);
+  };
+
+  class AbstrSynTree
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    using ClassName = std::string;
+    using TypeMap = std::unordered_map&ltClassName, ASTNode*&gt;
+
+    AbstrSynTree(ScopeStack&ltASTNode*&gt& stack);
+    ~AbstrSynTree();
+    ASTNode*& root();
+    void add(ASTNode* pNode);
+    ASTNode* find(const ClassName& type);
+    ASTNode* pop();
+    TypeMap& typeMap();
+  private:
+    TypeMap typeMap_;
+    ScopeStack&ltASTNode*&gt& stack_;
+    ASTNode* pGlobalNamespace_;
+  };</div>
+  <div class = "comment" style = "display : block; ">//----&lt traverse AST and execute callobj on every node &gt-------------</div>
+
+  template &lttypename CallObj&gt
+  void ASTWalk(ASTNode* pItem, CallObj co)
+<div class = "function"style = "display : inline-block; ">  {
+    static size_t indentLevel = 0;
+    co(pItem, indentLevel);
+    auto iter = pItem-&gtchildren_.begin();
+    ++indentLevel;
+    while (iter != pItem-&gtchildren_.end())
+    {
+      ASTWalk(*iter, co);
+      ++iter;
+    }
+    --indentLevel;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt traverse AST and execute callobj on every node &gt-------------</div>
+
+  template &lttypename CallObj&gt
+  void ASTWalkNoIndent(ASTNode* pItem, CallObj co)
+<div class = "function"style = "display : inline-block; ">  {
+    co(pItem);
+    auto iter = pItem-&gtchildren_.begin();
+    while (iter != pItem-&gtchildren_.end())
+    {
+      ASTWalkNoIndent(*iter, co);
+      ++iter;
+    }
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt compute complexities for each ASTNode &gt--------------------</div>
+
+  inline void complexityWalk(ASTNode* pItem, size_t& count)
+<div class = "function"style = "display : inline-block; ">  {
+    size_t inCount = ++count;
+    auto iter = pItem-&gtchildren_.begin();
+    while (iter != pItem-&gtchildren_.end())
+    {
+      complexityWalk(*iter, count);
+      ++iter;
+    }
+    pItem-&gtcomplexity_ = count - inCount + 1;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt compute complexities for each ASTNode &gt--------------------</div>
+
+  inline void complexityEval(ASTNode* pNode)
+<div class = "function"style = "display : inline-block; ">  {
+    size_t initialCount = 0;
+    complexityWalk(pNode, initialCount);
+  }</div>
+}
+
+struct foobar {
+
+};
+</pre> </body> </html>

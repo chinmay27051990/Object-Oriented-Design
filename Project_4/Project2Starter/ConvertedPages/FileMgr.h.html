@@ -1,0 +1,178 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#ifndef FILEMGR_H
+#define FILEMGR_H
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// FileMgr.h - find files matching specified patterns              //</div>
+<div class = "comment" style = "display : block; ">//             on a specified path                                 //</div>
+<div class = "comment" style = "display : block; ">// ver 2.2                                                         //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2016       //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+* Package Operations:
+* -------------------
+* This package provides a class, FileMgr, and object factory function,
+* Create().  It's mission is to search the directory tree, rooted at
+* a specified path, looking for files that match a set of specified
+* patterns.
+*
+* It provides virtual functions file(...), dir(...), and done(), which
+* an application can override to provide application specific processing
+* for the events: file found, directory found, and finished processing.
+*
+* The package also provides interface hooks that serve the same purpose
+* but allow multiple receivers for those events.
+*
+* Required Files:
+* ---------------
+*   FileMgr.h, FileMgr.cpp, IFileMgr.h, 
+*   FileSystem.h, FileSystem.cpp
+*
+* Build Process:
+* --------------
+*   devenv FileMgr.sln /rebuild debug
+*
+* Maintenance History:
+* --------------------
+* ver 2.2 : 28 Aug 2016
+* - added more prologue comments
+* ver 2.1 : 31 Jul 2016
+* - added virtual file, dir, and done functions
+* - this lets application override instead of registering for event
+* ver 2.0 : 12 Mar 2016
+* - fixes bug in directory recursion in find(path)
+* - reduces scope of for loop in find for efficiency
+* ver 1.0 : 11 Mar 2016
+* - first release
+*/</div>
+
+#include "IFileMgr.h"
+#include "../FileSystem/FileSystem.h"
+
+namespace FileManager
+{
+  class FileMgr : public IFileMgr
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    using patterns = std::vector&ltstd::string&gt;
+    using File = std::string;
+    using Dir = std::string;
+    using fileSubscribers = std::vector&ltIFileEventHandler*&gt;
+    using dirSubscribers = std::vector&ltIDirEventHandler*&gt;
+    using doneSubscribers = std::vector&ltIDoneEventHandler*&gt;
+
+<div class = "function"style = "display : inline-block; ">    virtual ~FileMgr() {}</div>
+
+    <div class = "comment" style = "display : block; ">//----&lt set default file pattern &gt-------------------------------</div>
+
+    FileMgr(const std::string& path) : path_(path)
+<div class = "function"style = "display : inline-block; ">    {
+      patterns_.push_back("*.*");
+      pInstance_ = this;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt return instance of FileMgr &gt-----------------------------</div>
+
+    static IFileMgr* getInstance()
+<div class = "function"style = "display : inline-block; ">    {
+      return pInstance_;
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt add file pattern, removing default on first call &gt-------</div>
+
+    void addPattern(const std::string& patt)
+<div class = "function"style = "display : inline-block; ">    {
+      if (patterns_.size() == 1 && patterns_[0] == "*.*")
+        patterns_.pop_back();
+      patterns_.push_back(patt);
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt applications can overload this or reg for fileEvt &gt------</div>
+
+    virtual void file(const File& f)
+<div class = "function"style = "display : inline-block; ">    {
+      ++numFilesProcessed;
+      for (auto pEvtHandler : fileSubscribers_)
+      {
+        pEvtHandler-&gtexecute(f);
+      }
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt applications can overload this or reg for dirEvt &gt-------</div>
+
+    virtual void dir(const Dir& fpath)
+<div class = "function"style = "display : inline-block; ">    {
+      for (auto pEvtHandler : dirSubscribers_)
+      {
+        pEvtHandler-&gtexecute(fpath);
+      }
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt applications can overload this or reg for doneEvt &gt------</div>
+
+    virtual void done()
+<div class = "function"style = "display : inline-block; ">    {
+      for (auto pEvtHandler : doneSubscribers_)
+      {
+        pEvtHandler-&gtexecute(numFilesProcessed);
+      }
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt start search on previously specified path &gt--------------</div>
+
+    void search()
+<div class = "function"style = "display : inline-block; ">    {
+      find(path_);
+      done();
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt search current path including subdirectories &gt-----------</div>
+
+    void find(const std::string& path)
+<div class = "function"style = "display : inline-block; ">    {
+      std::string fpath = FileSystem::Path::getFullFileSpec(path);
+      dir(fpath);
+      for (auto patt : patterns_)
+      {
+        std::vector&ltstd::string&gt files = FileSystem::Directory::getFiles(fpath, patt);
+        for (auto f : files)
+        {
+          file(f);
+        }
+      }</div>
+      std::vector&ltstd::string&gt dirs = FileSystem::Directory::getDirectories(fpath);
+      for (auto d : dirs)
+      {
+        if (d == "." || d == "..")
+          continue;
+        std::string dpath = fpath + "\\" + d;
+        find(dpath);
+      }
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt applications use this to register for notification &gt-----</div>
+
+    void regForFiles(IFileEventHandler* pHandler)
+<div class = "function"style = "display : inline-block; ">    {
+      fileSubscribers_.push_back(pHandler);
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt applications use this to register for notification &gt-----</div>
+
+    void regForDirs(IDirEventHandler* pHandler)
+<div class = "function"style = "display : inline-block; ">    {
+      dirSubscribers_.push_back(pHandler);
+    }</div>
+    <div class = "comment" style = "display : block; ">//----&lt applications use this to register for notification &gt-----</div>
+
+    void regForDone(IDoneEventHandler* pHandler)
+<div class = "function"style = "display : inline-block; ">    {
+      doneSubscribers_.push_back(pHandler);
+    }</div>
+  private:
+    std::string path_;
+    patterns patterns_;
+    size_t numFilesProcessed = 0;
+    fileSubscribers fileSubscribers_;
+    dirSubscribers dirSubscribers_;
+    doneSubscribers doneSubscribers_;
+    static IFileMgr* pInstance_;
+  };
+
+  inline IFileMgr* FileMgrFactory::create(const std::string& path)
+<div class = "function"style = "display : inline-block; ">  {
+    return new FileMgr(path);
+  }</div>
+}
+#endif
+</pre> </body> </html>

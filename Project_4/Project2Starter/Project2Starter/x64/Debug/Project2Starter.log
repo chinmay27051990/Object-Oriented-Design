@@ -1,0 +1,33 @@
+﻿  AbstrSynTree.cpp
+  Converter.cpp
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\dependencies\dependencies.h(52): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\dependencies\dependencies.h(53): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\dependencies\dependencies.h(54): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(199): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(243): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(269): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(274): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Display.cpp
+  FileSystem.cpp
+  GrammarHelpers.cpp
+  Loader.cpp
+  Logger.cpp
+  ScopeStack.cpp
+  Semi.cpp
+  Toker.cpp
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\tokenizer\toker.cpp(438): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+  Utilities.cpp
+  ActionsAndRules.cpp
+  ConfigureParser.cpp
+  Executive.cpp
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\dependencies\dependencies.h(52): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\dependencies\dependencies.h(53): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\dependencies\dependencies.h(54): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(199): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(243): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(269): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(274): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Parser.cpp
+  Generating Code...
+c:\users\chinm\desktop\project 3\chinmayvanjare_project2\project 2\chinmay_vanjare_project2_968717712\project2starter\converter\converter.h(126): warning C4715: 'Conversion::parserinConversion': not all control paths return a value
+  Project2Starter.vcxproj -> C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\x64\Debug\Project2Starter.lib

@@ -1,0 +1,303 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Message.cpp - defines message structure used in communication channel //</div>
+<div class = "comment" style = "display : block; ">// ver 1.2                                                               //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687-OnLine Object Oriented Design, Fall 2017          //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////</div>
+
+#include "Message.h"
+#include &ltiostream&gt
+
+using namespace MsgPassingCommunication;
+using SUtils = Utilities::StringHelper;
+
+<div class = "comment" style = "display : block; ">//----&lt default constructor results in Message with no attributes &gt----</div>
+
+<div class = "function"style = "display : inline-block; ">Message::Message() {}</div>
+
+<div class = "comment" style = "display : block; ">//----&lt constructor accepting dst and src addresses &gt------------------</div>
+
+Message::Message(EndPoint to, EndPoint from)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_["to"] = to.toString();
+  attributes_["from"] = from.toString();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt returns reference to Message attributes &gt----------------------</div>
+
+Message::Attributes& Message::attributes()
+<div class = "function"style = "display : inline-block; ">{
+  return attributes_;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt adds or modifies an existing attribute &gt-----------------------</div>
+
+void Message::attribute(const Key& key, const Value& value)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_[key] = value;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt clears all attributes &gt----------------------------------------</div>
+
+void Message::clear()
+<div class = "function"style = "display : inline-block; ">{
+  attributes_.clear();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt returns vector of attribute keys &gt-----------------------------</div>
+
+Message::Keys Message::keys()
+<div class = "function"style = "display : inline-block; ">{
+  Keys keys;
+  keys.reserve(attributes_.size());
+  for (auto kv : attributes_)
+  {
+    keys.push_back(kv.first);
+  }
+  return keys;
+}</div>
+<div class = "comment" style = "display : block; ">//---&lt does this message have key? &gt-----------------------------------</div>
+
+bool Message::containsKey(const Key& key)
+<div class = "function"style = "display : inline-block; ">{
+  if (attributes_.find(key) != attributes_.end())
+    return true;
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove attribute with this key &gt-------------------------------</div>
+
+bool Message::remove(const Key& key)
+<div class = "function"style = "display : inline-block; ">{
+  if (containsKey(key))
+  {
+    attributes_.erase(key);
+    return true;
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt return value of specified key &gt--------------------------------</div>
+
+Message::Value Message::value(const Key& key)
+<div class = "function"style = "display : inline-block; ">{
+  for (auto item : attributes_)
+  {
+    if (item.first == key)
+      return item.second;
+  }
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get to attribute &gt---------------------------------------------</div>
+
+EndPoint Message::to()
+<div class = "function"style = "display : inline-block; ">{
+  if (containsKey("to"))
+  {
+    return EndPoint::fromString(attributes_["to"]);
+  }
+  return EndPoint();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt set to attribute &gt---------------------------------------------</div>
+
+void Message::to(EndPoint ep)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_["to"] = ep.toString();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get from attribute &gt-------------------------------------------</div>
+
+EndPoint Message::from()
+<div class = "function"style = "display : inline-block; ">{
+  if (containsKey("from"))
+  {
+    return EndPoint::fromString(attributes_["from"]);
+  }
+  return EndPoint();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt set from attribute &gt-------------------------------------------</div>
+
+void Message::from(EndPoint ep)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_["from"] = ep.toString();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get name attribute &gt-------------------------------------------</div>
+
+std::string Message::name()
+<div class = "function"style = "display : inline-block; ">{
+  if (containsKey("name"))
+  {
+    return attributes_["name"];
+  }
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt set name attribute &gt-------------------------------------------</div>
+
+void Message::name(const std::string& nm)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_["name"] = nm;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get command attribute &gt----------------------------------------</div>
+
+std::string Message::command()
+<div class = "function"style = "display : inline-block; ">{
+  if (containsKey("command"))
+  {
+    return attributes_["command"];
+  }
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt set command attribute &gt----------------------------------------</div>
+
+void Message::command(const std::string& cmd)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_["command"] = cmd;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get file name attribute &gt--------------------------------------</div>
+
+std::string Message::file()
+<div class = "function"style = "display : inline-block; ">{
+  if (containsKey("file"))
+  {
+    return attributes_["file"];
+  }
+  return "";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt set file name attribute &gt--------------------------------------</div>
+
+void Message::file(const std::string& fl)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_["file"] = fl;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt get body length &gt----------------------------------------------</div>
+
+size_t Message::contentLength()
+<div class = "function"style = "display : inline-block; ">{
+  if (containsKey("content-length"))
+  {
+    std::string lenStr = attributes_["content-length"];
+    return Utilities::Converter&ltsize_t&gt::toValue(lenStr);
+  }
+  return 0;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt set body length &gt----------------------------------------------</div>
+
+void Message::contentLength(size_t ln)
+<div class = "function"style = "display : inline-block; ">{
+  attributes_["content-length"] = Utilities::Converter&ltsize_t&gt::toString(ln);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt convert message to string representation &gt---------------------</div>
+
+std::string Message::toString()
+<div class = "function"style = "display : inline-block; ">{
+  std::string temp;
+  for (auto kv : attributes_)
+  {
+    temp += kv.first + ":" + kv.second + "\n";
+  }
+  return temp + "\n";
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt extracts name from attribute string &gt--------------------------</div>
+
+Message::Key Message::attribName(const Attribute& attrib)
+<div class = "function"style = "display : inline-block; ">{
+  size_t pos = attrib.find_first_of(':');
+  if (pos == attrib.length())
+    return "";
+  return attrib.substr(0, pos);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt extracts value from attribute string &gt-------------------------</div>
+
+Message::Value Message::attribValue(const Attribute& attrib)
+<div class = "function"style = "display : inline-block; ">{
+  size_t pos = attrib.find_first_of(':');
+  if (pos == attrib.length())
+    return "";
+  return attrib.substr(pos + 1, attrib.length() - pos);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt creates message from message representation string &gt-----------</div>
+
+Message Message::fromString(const std::string& src)
+<div class = "function"style = "display : inline-block; ">{
+  Message msg;
+  std::vector&ltstd::string&gt splits = Utilities::StringHelper::split(src);
+  for (Attribute attr : splits)
+  {
+    if(attribName(attr) != "")
+      msg.attributes()[attribName(attr)] = attribValue(attr);
+  }
+  return msg;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt displays message on std::ostream &gt-----------------------------</div>
+<div class = "comment" style = "display : block; ">/*
+*  - adds beginning newline and removes trailing newline
+*  - by default stream is std::cout
+*  - can be replaced by std::ostringstream to get display string
+*/</div>
+std::ostream& Message::show(std::ostream& out)
+<div class = "function"style = "display : inline-block; ">{
+  std::string temp = toString();  <div class = "comment" style = "display : block; ">// convert this message to string</div>
+  size_t pos = temp.find_last_of('\n');
+  if (pos &lt temp.size())
+  {
+    temp[pos] = '\0';  <div class = "comment" style = "display : block; ">// remove last newline</div>
+  }
+  out &lt< "\n" << temp; <div class = "comment" style = "display : block; ">// prepend newline</div>
+  return out;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt test stub &gt----------------------------------------------------</div>
+
+#ifdef TEST_MESSAGE
+
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  SUtils::Title("Testing Message Class");
+
+  SUtils::title("testing endpoints");
+  EndPoint ep("localhost", 8080);
+  std::cout &lt< "\n  address = " << ep.address;
+  std::cout &lt< "\n  port = " << ep.port;
+  std::string epStr = ep.toString();
+  std::cout &lt< "\n  " << epStr;
+
+  EndPoint newEp = EndPoint::fromString(epStr);
+  std::cout &lt< "\n  " << newEp.toString();
+  Utilities::putline();
+
+  SUtils::title("testing messages");
+  Utilities::putline();
+
+  SUtils::title("creating message from Message::methods");
+  Message msg;
+  msg.name("msg#1");
+  msg.to(EndPoint("localhost", 8080));
+  msg.from(EndPoint("localhost", 8081));
+  msg.command("doIt");
+  msg.bodyLength(42);
+  msg.file("someFile");
+  msg.show();
+
+  SUtils::title("testing Message msg = fromString(msg.toString())");
+  Message newMsg = Message::fromString(msg.toString());
+  newMsg.show();
+
+  SUtils::title("retrieving attributes from message");
+  std::cout &lt< "\n  msg name          : " << newMsg.name();
+  std::cout &lt< "\n  msg command       : " << newMsg.command();
+  std::cout &lt< "\n  msg to            : " << newMsg.to().toString();
+  std::cout &lt< "\n  msg from          : " << newMsg.from().toString();
+  std::cout &lt< "\n  msg file          : " << newMsg.file();
+  std::cout &lt< "\n  msg content-Length: " << newMsg.contentLength();
+  Utilities::putline();
+
+  SUtils::title("adding custom attribute");
+  newMsg.attribute("customName", "customValue");
+  newMsg.show();
+
+  SUtils::title("testing assignment");
+  Message srcMsg;
+  srcMsg.name("srcMsg");
+  srcMsg.attribute("foobar", "feebar");
+  srcMsg.show();
+  std::cout &lt< "\n  assigning srcMsg to msg #1";
+  newMsg = srcMsg;
+  newMsg.show();
+
+  std::cout &lt< "\n\n";
+  return 0;
+}</div>
+#endif
+</pre> </body> </html>

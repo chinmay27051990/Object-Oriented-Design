@@ -1,0 +1,694 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// GrammarHelpers.cpp - Functions providing base grammatical analyses  //</div>
+<div class = "comment" style = "display : block; ">// ver 1.4                                                             //</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2015                                //</div>
+<div class = "comment" style = "display : block; ">// Application: Support for Parsing, CSE687 - Object Oriented Design   //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187            //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                                  //</div>
+<div class = "comment" style = "display : block; ">/////////////////////////////////////////////////////////////////////////</div>
+
+#include "GrammarHelpers.h"
+#include "../SemiExpression/Semi.h"
+#include "../Logger/Logger.h"
+#include "../Utilities/Utilities.h"
+#include &ltiostream&gt
+#include &ltiomanip&gt
+#include &ltsstream&gt
+
+using namespace CodeAnalysis;
+
+<div class = "comment" style = "display : block; ">//----&lt is tok a control keyword for either C++ or C# ? &gt------------</div>
+
+bool GrammarHelper::isControlKeyWord(const std::string& tok)
+<div class = "function"style = "display : inline-block; ">{
+  const static size_t numKeys = 9;
+  const static std::string keys[numKeys]
+    = { "for", "foreach", "do", "while", "switch", "if", "else", "try", "catch" };
+
+  for (int i = 0; i &lt numKeys; ++i)
+  {
+    if (tok == keys[i])
+      return true;
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt does Semi contain at least one control keyword ? &gt--------</div>
+
+bool GrammarHelper::hasControlKeyWord(const Lexer::ITokenCollection& se)
+<div class = "function"style = "display : inline-block; ">{
+  for (size_t i = 0; i &lt se.size(); ++i)
+  {
+    if (GrammarHelper::isControlKeyWord(se[i]))
+      return true;
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is Semi a function defin or declar ? &gt--------------------</div>
+
+bool GrammarHelper::isFunction(const Lexer::ITokenCollection& se)
+<div class = "function"style = "display : inline-block; ">{
+  if (se.last() != "{")
+    return false;
+  size_t len;
+  se.find("(", len);
+  if (0 &lt len && len < se.size() && !isControlKeyWord(se[len - 1]))
+  {
+    size_t posEquals; 
+    se.findLast("=", posEquals);
+    if (posEquals &lt se.size() - 1 && se[posEquals + 1] == "&gt")
+    {
+      <div class = "comment" style = "display : block; ">// C# lambda</div>
+      return false;
+    }
+    return true;
+  }
+  if (len == 0)
+  {
+    size_t posEquals;
+    se.find("=", posEquals);
+    if (posEquals &lt se.size() - 1 && se[posEquals + 1] == "&gt")
+    {
+      <div class = "comment" style = "display : block; ">// C# lambda</div>
+      return true;
+    }
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt has function and function has at least one argument &gt--------</div>
+
+bool GrammarHelper::hasArgs(const Lexer::ITokenCollection& se)
+<div class = "function"style = "display : inline-block; ">{
+  if (!isFunction(se))
+    return false;
+
+  size_t posOpenParen;
+  se.find("(", posOpenParen);
+  size_t posCloseParen;
+  se.find(")", posCloseParen);
+  if (posOpenParen &lt posCloseParen && posCloseParen < se.size())
+  {
+    if (posCloseParen &gt posOpenParen + 1)
+      return true;
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is Semi a function defin or declar ? &gt--------------------</div>
+
+bool GrammarHelper::isFunctionDefinition(const Lexer::ITokenCollection& se)
+<div class = "function"style = "display : inline-block; ">{
+  if (se.size() &gt 0 && se[se.size() - 1] != "{")
+    return false;
+
+  if (isFunction(se))
+    return true;
+  
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt find last matching token in Semi &gt------------------------</div>
+
+size_t GrammarHelper::findLast(const Lexer::ITokenCollection& se, const std::string& token)
+<div class = "function"style = "display : inline-block; ">{
+  size_t endIndex = se.size() - 1;
+  for (size_t i = 0; i &lt se.size(); ++i)
+  {
+    std::string debugTok = se[endIndex - i];
+    if (se[endIndex - i] == token)
+      return endIndex - i;
+  }
+  return se.size();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is tok a type qualifier keyword ? &gt--------------------------</div>
+
+bool GrammarHelper::isQualifierKeyWord(const std::string& tok)
+<div class = "function"style = "display : inline-block; ">{
+  const size_t numKeys = 21;            <div class = "comment" style = "display : block; ">// its declar else executable.</div>
+  const static std::string keys[numKeys] = {
+    "const", "extern", "friend", "mutable", "signed", "static", "abstract", 
+    "typedef", "typename", "unsigned", "volatile", "&", "*", <div class = "comment" style = "display : block; ">/*"std",*/</div> <div class = "comment" style = "display : block; ">/*"::",*/</div>
+    "public", "protected", "private", ":", "typename", "typedef", "++", "--"
+  };
+  for (int i = 0; i &lt numKeys; ++i)
+    if (tok == keys[i])
+      return true;
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt strip qualifier keywords from Semi &gt----------------------</div>
+
+void GrammarHelper::removeQualifiers(Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  size_t i = 0;
+  while (i &lt tc.size())
+  {
+    if (isQualifierKeyWord(tc[i]))
+      tc.remove(i);
+    else
+      ++i;
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove calling argument qualifiers after first paren &gt-------</div>
+
+void GrammarHelper::removeCallingArgQualifiers(Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  <div class = "comment" style = "display : block; ">//std::string debug = tc.show();</div>
+
+  size_t begin;
+  tc.find("(", begin);
+  size_t end;
+  tc.find(")", end);
+  if (begin == tc.size() || end == tc.size() || begin &gt= end)
+    return;
+  size_t i = begin + 1;
+  while (true)
+  {
+    if (isQualifierKeyWord(tc[i]))
+      tc.remove(tc[i]);
+    if (tc[i] == ")")
+      break;
+    ++i;
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is token a scope connector ? &gt-------------------------------</div>
+
+bool isScopeConnector(const std::string& tok)
+<div class = "function"style = "display : inline-block; ">{
+  if (tok == "::" || tok == ".")
+    return true;
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is first function argument a declaration ? &gt-----------------</div>
+
+bool GrammarHelper::isFirstArgDeclaration(const Lexer::ITokenCollection& tc, const std::string& parentType)
+<div class = "function"style = "display : inline-block; ">{
+  if(!isFunction(tc))
+    return false;  <div class = "comment" style = "display : block; ">// not a function</div>
+
+  if (parentType == "function")
+    return false;  <div class = "comment" style = "display : block; ">// functions don't declare other functions</div>
+
+  Lexer::Semi se;
+  se.clone(tc);
+
+  removeCallingArgQualifiers(se);
+
+  size_t posOpenParen;
+  se.find("(", posOpenParen);
+  size_t posComma;
+  se.find(",", posComma);
+  size_t posEqual;
+  se.find("=", posEqual);
+  size_t posCloseParen;
+  se.find(")", posCloseParen);
+  
+  <div class = "comment" style = "display : block; ">// must have two adjacent terms without connector, e.g., type and name</div>
+
+  size_t posEnd = (posComma &lt posEqual) ? posComma : posEqual;
+  posEnd = (posEnd &lt posCloseParen) ? posEnd : posCloseParen;
+
+  <div class = "comment" style = "display : block; ">// Note:</div>
+  <div class = "comment" style = "display : block; ">// - This set of cases works correctly only if name is included in</div>
+  <div class = "comment" style = "display : block; ">//   declaration, but that is not required by either C++ or C#.</div>
+  <div class = "comment" style = "display : block; ">// - An example of the problem is X(tok);  If tok is a</div>
+  <div class = "comment" style = "display : block; ">//   type then this is a constructor function declaration, otherwise</div>
+  <div class = "comment" style = "display : block; ">//   it is a function invocation with named parameter tok.</div>
+  <div class = "comment" style = "display : block; ">// - To fix this we would need to know all defined types, both</div>
+  <div class = "comment" style = "display : block; ">//   those defined by our code and also by all the libraries used.</div>
+  <div class = "comment" style = "display : block; ">// - for most analysis applications we do not need a completely</div>
+  <div class = "comment" style = "display : block; ">//   reliable function declaration detector</div>
+
+  size_t numArgTerms = posEnd - posOpenParen - 1;
+  switch (numArgTerms)
+  {
+  case 1:
+    <div class = "comment" style = "display : block; ">// must be executable</div>
+    return false;
+    break;
+  case 2:
+    <div class = "comment" style = "display : block; ">// type name</div>
+    return true;
+    break;
+  case 4:
+    <div class = "comment" style = "display : block; ">// namespace :: type name</div>
+    return true;
+    break;
+  default:
+    <div class = "comment" style = "display : block; ">// not an argument declaration</div>
+    break;
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is this a function declaration ? &gt---------------------------</div>
+
+bool GrammarHelper::isFunctionDeclaration(const Lexer::ITokenCollection& tc, const std::string& parentType)
+<div class = "function"style = "display : inline-block; ">{
+  <div class = "comment" style = "display : block; ">//std::string debug = tc.show();</div>
+
+  if (tc.size() == 0)
+    return false;
+
+  if (tc.size() == 1)  <div class = "comment" style = "display : block; ">// ; or {</div>
+    return false;
+
+  if (tc[tc.size() - 1] != ";")
+    return false;
+
+  std::string tok = tc[tc.size() - 2];
+  if (tok == "delete" || tok == "default")
+    return true;
+
+  if (parentType == "function")
+    return false;
+
+  if (!isFunction(tc))
+    return false;
+
+  size_t posOper;
+  tc.find("operator", posOper);
+  if (posOper &lt tc.size())
+    return true;
+
+  Lexer::Semi se;
+  se.clone(tc);
+
+  if (isFirstArgDeclaration(se, parentType) || !hasArgs(se))
+    return true;
+
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is this a function invocation ? &gt----------------------------</div>
+<div class = "comment" style = "display : block; ">/*
+*  will return false unless invocation uses first paren in Semi
+*/</div>
+bool GrammarHelper::isFunctionInvocation(const Lexer::ITokenCollection& tc, const std::string& parentType)
+<div class = "function"style = "display : inline-block; ">{
+  if (tc.size() == 1)  <div class = "comment" style = "display : block; ">// ; or {</div>
+    return false;
+
+  if (parentType != "function")
+    return false;
+
+  if (isFunction(tc) && !isFunctionDeclaration(tc, parentType) && !isFunctionDefinition(tc))
+    return true;
+  
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt has function invocation somewhere in expression ? &gt----------</div>
+
+bool GrammarHelper::hasFunctionInvocation(const Lexer::ITokenCollection& tc, const std::string& parentType)
+<div class = "function"style = "display : inline-block; ">{
+  if (tc.size() == 1)  <div class = "comment" style = "display : block; ">// ; or {</div>
+    return false;
+
+  if (tc.size() &gt 0 && tc[tc.size() - 1] == "{")
+    return false;
+
+  if (parentType != "function")
+    return false;
+
+  size_t posParen;
+  tc.find("(", posParen);
+  Lexer::Semi test;
+  test.clone(tc, posParen - 1);
+  std::string debug = test.show();
+  while (true)
+  {
+    if (isFunctionInvocation(test, parentType))
+      return true;
+    test.find("(", posParen, posParen + 1);
+    if (posParen == test.size())
+      return false;
+    Lexer::Semi innerTest;
+    innerTest.clone(test, posParen - 1);
+    test = innerTest;
+    std::string debug = test.show();
+  }
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is this a data declaration ? &gt-------------------------------</div>
+
+bool GrammarHelper::isDataDeclaration(const Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  std::string debug3 = tc.show();
+
+  if (tc.size() == 1)  <div class = "comment" style = "display : block; ">// ; or {</div>
+    return false;
+
+  if (tc.size() &gt 0 && tc[tc.size() - 1] != ";")
+    return false;
+
+  if (tc.size() &gt 0 && (tc[0] == "~" || tc[0] == "return"))
+    return false;
+
+  if(hasControlKeyWord(tc))
+    return false;
+
+  size_t insert;
+  tc.find("&lt<", insert);
+  size_t extract;
+  tc.find("&gt>", extract);
+  if (insert &lt tc.size() || extract < tc.size())
+    return false;
+
+  std::string debug = tc.show();
+
+  Lexer::Semi se;
+  se.clone(tc);
+  condenseTemplateTypes(se);
+  removeQualifiers(se);
+  removeCppInitializers(se);
+  
+  <div class = "comment" style = "display : block; ">// is this a function declaration ?</div>
+
+  size_t posParen;
+  se.find("(", posParen);
+  if (posParen &lt se.size() && (posParen == 2 || posParen == 3))
+    return false;
+
+  removeFunctionArgs(se);
+  
+  <div class = "comment" style = "display : block; ">// is stripped tc of the form "type name ;" or "namespace :: type name ;"</div>
+
+  std::string debug2 = se.show();
+
+  if (se.size() == 3)
+    return true;
+  if (se.size() == 5 && se[1] == "::")
+    return true;
+
+  return false;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt is this an executable statement ? &gt--------------------------</div>
+
+bool GrammarHelper::isExecutable(const Lexer::ITokenCollection& tc, const std::string& parentType)
+<div class = "function"style = "display : inline-block; ">{
+  if (tc.size() == 1)  <div class = "comment" style = "display : block; ">// ; or {</div>
+    return false;
+
+  if (isFunctionDefinition(tc))
+    return false;
+  if (isFunctionDeclaration(tc, parentType))
+    return false;
+  if (isDataDeclaration(tc))
+    return false;
+  return true;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove initializers from C++ Semi &gt-----------------------</div>
+
+void GrammarHelper::removeCppInitializers(Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  std::string debug = tc.show();
+  for (size_t i = 0; i &lt tc.size(); ++i)
+  {
+    if (tc[i] == "=" || tc[i] == "{")
+    {
+      size_t j = i;
+      while (j &lt tc.size() && tc[j] != ";")
+      {
+        tc.remove(j);
+      }
+      break;
+    }
+  }
+  if (tc.size() &gt 0 && tc[tc.size() - 1] != ";")
+    tc.add(";");
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove initializers from C# Semi &gt------------------------</div>
+
+void GrammarHelper::removeCSharpInitializers(Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  std::string debug = tc.show();
+  for (size_t i = 0; i &lt tc.size(); ++i)
+  {
+    if (tc[i] == "=")
+    {
+      size_t j = i;
+      while (j &lt tc.size() && tc[j] != ";")
+      {
+        tc.remove(j);
+      }
+      break;
+    }
+  }
+  if (tc.size() &gt 0 && tc[tc.size() - 1] != ";")
+    tc.add(";");
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove comments from Semi &gt-------------------------------</div>
+
+void GrammarHelper::removeComments(Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  size_t i = 0;
+  while (true)
+  {
+    if (tc.isComment(tc[i]))
+      tc.remove(i);
+    if (++i == tc.size())
+      break;
+  }
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt condense template spec to single token &gt---------------------</div>
+
+void GrammarHelper::condenseTemplateTypes(Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  size_t start;
+  tc.find("&lt", start);
+  size_t end;
+  tc.find("&gt", end);
+  if (start &gt= end || start == 0)
+    return;
+  else
+  {
+    if (end == tc.size())
+      tc.find("&gt::", end);
+    if (end == tc.size())
+      return;
+  }
+  std::string save = tc[end];
+  std::string tok = tc[start - 1];
+  for (size_t i = start; i &lt end + 1; ++i)
+  {
+    tok += tc[i];
+    if (tc[i] == "typename" || tc[i] == "class")
+      tok += " ";
+  }
+  for (size_t i = start; i &lt end + 1; ++i)
+    tc.remove(start);
+  if (save == "&gt::")
+  {
+    tok += tc[start + 1];
+    tc.remove(start);
+  }
+  tc[start - 1] = tok;
+  <div class = "comment" style = "display : block; ">//std::cout &lt< "\n  -- " << tc.show();</div>
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt remove function's formal arguments &gt-------------------------</div>
+
+void GrammarHelper::removeFunctionArgs(Lexer::ITokenCollection& tc)
+<div class = "function"style = "display : inline-block; ">{
+  std::string debug = tc.show();
+
+  size_t start;
+  tc.find("(", start);
+  size_t end;
+  tc.find(")", end);
+  if (start &gt= end || end == tc.size() || start == 0)
+    return;
+  if (GrammarHelper::isControlKeyWord(tc[start - 1]))
+    return;
+  for (size_t i = start; i &lt end + 1; ++i)
+    tc.remove(start);
+  <div class = "comment" style = "display : block; ">//std::cout &lt< "\n  -- " << tc.show();</div>
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt show Semi with Dbug logger &gt------------------------------</div>
+
+void GrammarHelper::showParse(const std::string& msg, const Lexer::ITokenCollection& se, bool isResult)
+<div class = "function"style = "display : inline-block; ">{
+  using Rslt = Logging::StaticLogger&lt0&gt;
+  using Dbug = Logging::StaticLogger&lt2&gt;
+  if (Dbug::running() || Rslt::running())
+  {
+    std::ostringstream out;
+    out &lt< "\n  " << std::left << std::setw(15) << msg << ": ";
+    std::string temp = se.show();
+    <div class = "comment" style = "display : block; ">//if (temp.size() &gt 80)</div>
+    <div class = "comment" style = "display : block; ">//  out &lt< "\n    ";</div>
+    out &lt< temp;
+    if (isResult && Rslt::running())
+      Rslt::write(out.str());
+    else if (Dbug::running())
+      Dbug::write(out.str());
+  }
+}</div>
+
+void GrammarHelper::showParseDemo(const std::string& msg, const Lexer::ITokenCollection& se)
+<div class = "function"style = "display : inline-block; ">{
+  using Demo = Logging::StaticLogger&lt1&gt;
+  if (Demo::running())
+  {
+    std::ostringstream out;
+    out &lt< "\n  " << std::left << std::setw(32) << msg << ": ";
+    std::string temp = se.show();
+    if (temp.size() &gt 80)
+      <div class = "comment" style = "display : block; ">//out &lt< "\n    ";</div>
+    out &lt< temp;
+    Demo::write(out.str());
+  }
+}</div>
+
+#ifdef TEST_GRAMMARHELPERS
+
+#include &ltvector&gt
+#include &ltiostream&gt
+#include "../SemiExpression/Semi.h"
+#include "../Utilities/Utilities.h"
+
+using namespace Lexer;
+using Token = std::string;
+using Toks = std::vector&ltToken&gt;
+
+void load(const Toks& toks, Semi& se)
+<div class = "function"style = "display : inline-block; ">{
+  se.clear();
+  for (auto item : toks)
+    se.add(item);
+}
+
+std::string showQualifiers(const Semi& se)
+{
+  std::string temp;
+  for (size_t i = 0; i &lt se.size(); ++i)
+    if (GrammarHelper::isQualifierKeyWord(se[i]))
+      temp += se[i] + " ";
+  return temp;
+}</div>
+
+void showPredicate(bool predicate, const std::string& msg)
+<div class = "function"style = "display : inline-block; ">{
+  if (predicate)
+    std::cout &lt< "\n    " << msg;
+  else
+    std::cout &lt< "\n    not " << msg;
+}</div>
+
+std::string show(const ITokenCollection& se)
+<div class = "function"style = "display : inline-block; ">{
+  std::string temp;
+  for (size_t i = 0; i &lt se.size(); ++i)
+    temp += se[i] + " ";
+  return temp;
+}</div>
+
+void testHelpers(const Semi& seIn)
+<div class = "function"style = "display : inline-block; ">{
+  Lexer::Semi se;
+  se.clone(seIn);
+
+  Utilities::StringHelper::title("Testing GrammarHelpers");
+  std::cout &lt< "\n  " << show(se);
+  se.trim();
+  std::cout &lt< "\n    removing comments:  " << show(se);
+  std::cout &lt< "\n    index of last \"(\" is " << GrammarHelper::findLast(seIn, "(");
+  std::cout &lt< "\n    qualifier keywords are: " << showQualifiers(seIn);
+
+  std::string debug = se.show();
+  showPredicate(GrammarHelper::isFunctionDefinition(se), "function definition");
+
+  std::string parentType = "function";
+  std::cout &lt< "\n  parent type = " << parentType;
+  showPredicate(GrammarHelper::isFunctionDeclaration(se, parentType), "function declaration");
+  showPredicate(GrammarHelper::isFunctionInvocation(se, parentType), "function invocation");
+  showPredicate(GrammarHelper::hasFunctionInvocation(se, parentType), "has function invocation");
+  parentType = "class";
+  std::cout &lt< "\n  parent type = " << parentType;
+  showPredicate(GrammarHelper::isFunctionDeclaration(se, parentType), "function declaration");
+  showPredicate(GrammarHelper::isFunctionInvocation(se, parentType), "function invocation");
+  showPredicate(GrammarHelper::hasFunctionInvocation(se, parentType), "has function invocation");
+
+  showPredicate(GrammarHelper::isDataDeclaration(se), "data declaration");
+  showPredicate(GrammarHelper::hasControlKeyWord(se), "found control Keyword");
+
+  Semi testSE;
+  testSE.clone(seIn);
+  GrammarHelper::condenseTemplateTypes(testSE);
+  std::cout &lt< "\n    condensing template types: " << show(testSE);
+
+  testSE.clone(seIn);
+  GrammarHelper::removeQualifiers(testSE);
+  std::cout &lt< "\n    removing qualifiers: " << show(testSE);
+
+  testSE.clone(seIn);
+  GrammarHelper::removeCppInitializers(testSE);
+  std::cout &lt< "\n    removing C++ initializers: " << show(testSE);
+
+  testSE.clone(seIn);
+  GrammarHelper::removeFunctionArgs(testSE);
+  std::cout &lt< "\n    removing function args: " << show(testSE);
+
+  testSE.clone(seIn);
+  GrammarHelper::removeCallingArgQualifiers(testSE);
+  std::cout &lt< "\n    removing qualifiers in function calling sequence: " << show(testSE);
+  std::cout &lt< "\n";
+} </div>
+int main()
+<div class = "function"style = "display : inline-block; ">{
+  Utilities::StringHelper::Title("Testing Grammar Functions");
+  std::cout &lt< "\n  Note:";
+  std::cout &lt< "\n  - Test functions are applied to Semis that they should change and those they should not.";
+  std::cout &lt< "\n  - The intent is to make sure they do what they are supposed to do without harming Semis";
+  std::cout &lt< "\n  - that should not change.\n";
+
+  Toks tokset0 = { "<div class = "comment" style = "display : block; ">/* Test0 */</div>", ";" };
+  Toks tokset1 = { "<div class = "comment" style = "display : block; ">/* Test1 */</div>", "extern", "int", "x", "[", "2", "]", "=", "{", "1", ",", "2", "}", ";" };
+  Toks tokset2 = { "<div class = "comment" style = "display : block; ">/* Test2 */</div>", "extern", "int", "x", "[", "2", "]", "{", "1", ",", "2", "}", ";" };
+  Toks tokset3 = { "<div class = "comment" style = "display : block; ">/* Test3 */</div>", "if", "(", "x", "==", "y", ")", "doThing", "(", "3", ")", ";" };
+  Toks tokset4 = { "<div class = "comment" style = "display : block; ">/* Test4 */</div>", "void", "fun", "(", "int", "anInteger", ")", "{" };
+  Toks tokset5 = { "<div class = "comment" style = "display : block; ">/* Test5 */</div>", "void", "fun", "(", "int", "anInteger", ")", ";" };
+  Toks tokset6 = { "<div class = "comment" style = "display : block; ">/* Test6 */</div>", "int", "fun", "(", "const", "int", "&", "anItegerRef", ")", ";" };
+  Toks tokset7 = { "<div class = "comment" style = "display : block; ">/* Test7 */</div>", "template", "&lt", "typename", "C", "&gt", "class", "A", "{" };
+  Toks tokset8 = { "<div class = "comment" style = "display : block; ">/* Test7 */</div>", "template", "&lt", "typename", "C", "&gt", "void", "fun", "(", "const", "C", "&", "c", ")", "{" };
+  Toks tokset9 = { "<div class = "comment" style = "display : block; ">/* Test9 */</div>", "std", "::","vector", "&lt", "std", "::", "string", "&gt", "aVec", ";" };
+  Toks tokset10 = { "<div class = "comment" style = "display : block; ">/* Test10 */</div>", "ClassName", "(", ")", ";" };
+  Toks tokset11 = { "<div class = "comment" style = "display : block; ">/* Test11 */</div>", "~", "ClassName", "(", ")", ";" };
+  Toks tokset12 = { "<div class = "comment" style = "display : block; ">/* Test12 */</div>", "ClassName", "(", "int", "count", ")", ";" };
+  Toks tokset13 = { "<div class = "comment" style = "display : block; ">/* Test13 */</div>", "ClassName", "(", "int", "count", ")", ":", "count_", "(", "count", ")", "{" };
+  Toks tokset14 = { "<div class = "comment" style = "display : block; ">/* Test14 */</div>", "Lexer", "::", "Semi", "se", "(", "nullPtr", ")", ";" };
+  Toks tokset15 = { "<div class = "comment" style = "display : block; ">/* Test15 */</div>", "public", "abstract", "void", "doAction", "(", "CSemi", ".", "CSemi", "semi", ")", ";" };
+
+  Lexer::Semi se;
+
+  load(tokset0, se);
+  testHelpers(se);
+  load(tokset1, se);
+  testHelpers(se);
+  load(tokset2, se);
+  testHelpers(se);
+  load(tokset3, se);
+  testHelpers(se);
+  load(tokset4, se);
+  testHelpers(se);
+  load(tokset5, se);
+  testHelpers(se);
+  load(tokset6, se);
+  testHelpers(se);
+  load(tokset7, se);
+  testHelpers(se);
+  load(tokset8, se);
+  testHelpers(se);
+  load(tokset9, se);
+  testHelpers(se);
+  load(tokset10, se);
+  testHelpers(se);
+  load(tokset11, se);
+  testHelpers(se);
+  load(tokset12, se);
+  testHelpers(se);
+  load(tokset13, se);
+  testHelpers(se);
+  load(tokset14, se);
+  testHelpers(se);
+  load(tokset15, se);
+  testHelpers(se);
+}</div>
+#endif
+
+
+</pre> </body> </html>

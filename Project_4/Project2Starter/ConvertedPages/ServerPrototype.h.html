@@ -1,0 +1,153 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// ServerPrototype.h - Console App that processes incoming messages  //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                           //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2018         //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+*  Package Operations:
+* ---------------------
+*  Package contains one class, Server, that contains a Message-Passing Communication
+*  facility. It processes each message by invoking an installed callable object
+*  defined by the message's command key.
+*
+*  Message handling runs on a child thread, so the Server main thread is free to do
+*  any necessary background processing (none, so far).
+*
+*  Required Files:
+* -----------------
+*  ServerPrototype.h, ServerPrototype.cpp
+*  Comm.h, Comm.cpp, IComm.h
+*  Message.h, Message.cpp
+*  FileSystem.h, FileSystem.cpp
+*  Utilities.h
+*
+*  Maintenance History:
+* ----------------------
+*  ver 1.0 : 3/27/2018
+*  - first release
+*/</div>
+#include &ltvector&gt
+#include &ltstring&gt
+#include &ltunordered_map&gt
+#include &ltfunctional&gt
+#include &ltthread&gt
+#include "../CppCommWithFileXfer/Message/Message.h"
+#include "../CppCommWithFileXfer/MsgPassingComm/Comm.h"
+#include &ltwindows.h&gt
+#include &lttchar.h&gt
+
+namespace Repository
+{
+  using File = std::string;
+  using Files = std::vector&ltFile&gt;
+  using Dir = std::string;
+  using Dirs = std::vector&ltDir&gt;
+  using SearchPath = std::string;
+  using Key = std::string;
+  using Msg = MsgPassingCommunication::Message;
+  using ServerProc = std::function&ltMsg(Msg)&gt;
+  using MsgDispatcher = std::unordered_map&ltKey,ServerProc&gt;
+  
+  const SearchPath storageRoot = ".";  <div class = "comment" style = "display : block; ">// root for all server file storage</div>
+  const MsgPassingCommunication::EndPoint serverEndPoint("localhost", 9090);  <div class = "comment" style = "display : block; ">// listening endpoint</div>
+
+  class Server
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    Server(MsgPassingCommunication::EndPoint ep, const std::string& name);
+    void start();
+    void stop();
+    void addMsgProc(Key key, ServerProc proc);
+    void processMessages();
+    void postMessage(MsgPassingCommunication::Message msg);
+    MsgPassingCommunication::Message getMessage();
+    static Dirs getDirs(const SearchPath& path = storageRoot);
+    static Files getFiles(const SearchPath& path = storageRoot);
+  private:
+    MsgPassingCommunication::Comm comm_;
+    MsgDispatcher dispatcher_;
+    std::thread msgProcThrd_;
+  };</div>
+  <div class = "comment" style = "display : block; ">//----&lt initialize server endpoint and give server a name &gt----------</div>
+
+  inline Server::Server(MsgPassingCommunication::EndPoint ep, const std::string& name)
+<div class = "function"style = "display : inline-block; ">    : comm_(ep, name) {}</div>
+
+  <div class = "comment" style = "display : block; ">//----&lt start server's instance of Comm &gt----------------------------</div>
+
+  inline void Server::start()
+<div class = "function"style = "display : inline-block; ">  {
+    comm_.start("../ConvertedPages","../ConvertedPages");
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt stop Comm instance &gt-----------------------------------------</div>
+
+  inline void Server::stop()
+<div class = "function"style = "display : inline-block; ">  {
+    if(msgProcThrd_.joinable())
+      msgProcThrd_.join();
+    comm_.stop();
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt pass message to Comm for sending &gt---------------------------</div>
+
+  inline void Server::postMessage(MsgPassingCommunication::Message msg)
+<div class = "function"style = "display : inline-block; ">  {
+    comm_.postMessage(msg);
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt get message from Comm &gt--------------------------------------</div>
+
+  inline MsgPassingCommunication::Message Server::getMessage()
+<div class = "function"style = "display : inline-block; ">  {
+    Msg msg = comm_.getMessage();
+    return msg;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt add ServerProc callable object to server's dispatcher &gt------</div>
+
+  inline void Server::addMsgProc(Key key, ServerProc proc)
+<div class = "function"style = "display : inline-block; ">  {
+    dispatcher_[key] = proc;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt start processing messages on child thread &gt------------------</div>
+
+  inline void Server::processMessages()
+<div class = "function"style = "display : inline-block; ">  {
+    auto proc = [&]()
+    {
+      if (dispatcher_.size() == 0)
+      {
+        std::cout &lt< "\n  no server procs to call";
+        return;
+      }
+	  while (true)
+	  {
+		  Msg msg = getMessage();
+		  std::cout &lt< "\n  received message: " << msg.command() << " from " << msg.from().toString();
+		  if (msg.containsKey("verbose"))
+		  {
+			  std::cout &lt< "\n";
+			  msg.show();
+		  }
+		  if (msg.command() == "serverQuit")
+			  break;
+		  if (dispatcher_.find(msg.command()) != dispatcher_.end()) {
+			  Msg reply = dispatcher_[msg.command()](msg);
+			  if (msg.to().port != msg.from().port)  <div class = "comment" style = "display : block; ">// avoid infinite message loop</div>
+			  {
+				  postMessage(reply);
+				  msg.show();
+				  reply.show();
+			  }
+			  else
+				  std::cout &lt< "\n  server attempting to post to self";
+		  }
+	  }
+      std::cout &lt< "\n  server message processing thread is shutting down";
+    };
+    std::thread t(proc);
+    <div class = "comment" style = "display : block; ">//SetThreadPriority(t.native_handle(), THREAD_PRIORITY_HIGHEST);</div>
+    std::cout &lt< "\n  starting server thread to process messages";
+    msgProcThrd_ = std::move(t);
+  }</div>
+}
+</pre> </body> </html>

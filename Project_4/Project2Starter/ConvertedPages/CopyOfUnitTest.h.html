@@ -1,0 +1,83 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#ifndef UNITTEST_H
+#define UNITTEST_H
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// UnitTest.cpp - Demonstrate unit testing framework         //</div>
+<div class = "comment" style = "display : block; ">// ver 1.1                                                   //</div>
+<div class = "comment" style = "display : block; ">// --------------------------------------------------------- //</div>
+<div class = "comment" style = "display : block; ">// copyright © Jim Fawcett, 2012, 2013                       //</div>
+<div class = "comment" style = "display : block; ">// All rights granted provided that this notice is retained  //</div>
+<div class = "comment" style = "display : block; ">// --------------------------------------------------------- //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687-Object Oriented Design, Spring 2013   //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////</div>
+
+#include &ltstring&gt
+#include &ltiostream&gt
+
+namespace Test
+{
+  void Title(const std::string& title, char ch='=')
+<div class = "function"style = "display : inline-block; ">  {
+    std::cout &lt< "\n  " << title;
+    std::cout &lt< "\n " << std::string(title.size() + 2, ch);
+  }</div>
+
+  template &lttypename T&gt
+  class TestBase
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+
+    typedef bool (T::*Test) ();
+
+<div class = "function"style = "display : inline-block; ">    virtual ~TestBase() {}</div>
+
+    <div class = "comment" style = "display : block; ">// Your test driver implements this for each major test</div>
+    <div class = "comment" style = "display : block; ">// - call a sequence of doTest(TestN)s</div>
+    <div class = "comment" style = "display : block; ">//-----------------------------------------------------</div>
+    virtual bool test()=0;
+
+    <div class = "comment" style = "display : block; ">// Executes test functions inside a try block</div>
+    <div class = "comment" style = "display : block; ">//-------------------------------------------</div>
+    bool doTest(Test atest) 
+<div class = "function"style = "display : inline-block; ">    { 
+      try
+      {
+        return (dynamic_cast&ltT*&gt(this)->*atest)();
+      }
+      catch (std::exception& ex)
+      {
+        std::cout &lt< "\n  failed: " << ex.what();
+        return false;
+      }
+      catch(...)
+      {
+        std::cout &lt< "\n  failed: thrown structured exception";
+        return false;
+      }
+    }</div>
+    <div class = "comment" style = "display : block; ">// Call this in your test functions to save duplicating output statements</div>
+    <div class = "comment" style = "display : block; ">//-----------------------------------------------------------------------</div>
+    bool checkResult(bool predicate, std::string testname)
+<div class = "function"style = "display : inline-block; ">    {
+      std::string name = std::string(typeid(*this).name()) + "::" + testname;
+      name = name.substr(6, name.size() - 6);
+      if(predicate)
+        return passed(name);
+      else
+        return failed(name);
+    }</div>
+  protected:
+    bool passed(const std::string& name)
+<div class = "function"style = "display : inline-block; ">    {
+      std::cout &lt< "\n  passed: " << name;
+      return true;
+    }</div>
+    bool failed(const std::string& name)
+<div class = "function"style = "display : inline-block; ">    {
+      std::cout &lt< "\n  failed: " << name;
+      return false;
+    }</div>
+  };</div>
+}
+#endif
+</pre> </body> </html>

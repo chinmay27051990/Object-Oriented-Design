@@ -1,0 +1,186 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// Process.h - class used to start process                           //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                           //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2018         //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+*  Package Operations:
+*  -------------------
+*  This package provides a class, Process, used to start named processes.
+*  It has a lot of potential, mostly unrealized by this simple beginning.
+*
+*  Possible future features include:
+*  - interprocess communication between parent and child using pipes
+*  - handling multiple process, perhaps in a process pool
+*  - killing processes
+*  - enumerating running processes that match a regular expression
+*  - yada, yada, yada
+*
+*  Required Files:
+*  ---------------
+*  Process.h, Process.cpp
+*
+*  Maintenance History:
+*  --------------------
+*  ver 1.0 : 19 Feb 2018
+*  - first release
+*/</div>
+
+#include &ltwindows.h&gt
+#include &ltstring&gt
+#include &ltiostream&gt
+#include &ltfunctional&gt
+
+using CBP = std::function&ltvoid(void)&gt;
+
+class Process
+<div class = "class"style = "display : inline-block; ">{
+public:
+  Process();
+<div class = "function"style = "display : inline-block; ">  virtual ~Process() {}</div>
+  bool create(const std::string& path = "");
+  void title(const std::string& title);
+  void application(const std::string& app);
+  void commandLine(const std::string& cmdLine);
+  void registerCallback();
+  void setCallBackProcessing(CBP cbp);
+  void callback();
+  HANDLE getProcessHandle();
+private:
+  STARTUPINFO startInfo_;
+  PROCESS_INFORMATION procInfo_;  
+  std::wstring title_;
+  std::wstring appName_;
+  std::wstring commandLine_;
+  static CBP cbp_;
+};</div>
+
+<div class = "function"style = "display : inline-block; ">CBP Process::cbp_ = []() { std::cout &lt< "\n  --- child process exited ---"; };</div>
+
+<div class = "comment" style = "display : block; ">//----&lt Process constructor &gt------------------------------------------</div>
+<div class = "comment" style = "display : block; ">/*
+* - This eventually will have more functionality
+*/</div>
+inline Process::Process()
+<div class = "function"style = "display : inline-block; ">{
+  GetStartupInfo(&startInfo_);
+  startInfo_.dwFlags = STARTF_USEPOSITION | STARTF_USESIZE;
+  startInfo_.dwX = 200;
+  startInfo_.dwY = 250;
+  startInfo_.dwYSize = 300;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt helper function to convert strings &gt---------------------------</div>
+
+inline std::string wToS(const std::wstring& ws)
+<div class = "function"style = "display : inline-block; ">{
+  std::string conv;
+  for (auto ch : ws)
+  {
+    conv.push_back(static_cast&ltchar&gt(ch));
+  }
+  return conv;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt helper function to convert strings &gt---------------------------</div>
+
+inline std::wstring sToW(const std::string& s)
+<div class = "function"style = "display : inline-block; ">{
+  std::wstring conv;
+  for (auto ch : s)
+  {
+    conv.push_back(static_cast&ltwchar_t&gt(ch));
+  }
+  return conv;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt define application new process runs &gt--------------------------</div>
+
+inline void Process::application(const std::string& appName)
+<div class = "function"style = "display : inline-block; ">{
+  appName_ = sToW(appName);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt define commandline passed to new application &gt-----------------</div>
+
+inline void Process::commandLine(const std::string& cmdLine)
+<div class = "function"style = "display : inline-block; ">{
+  commandLine_ = sToW(cmdLine);
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt define title bar for console window &gt--------------------------</div>
+<div class = "comment" style = "display : block; ">/*
+* - applications like Notepad overwrite this string
+*/</div>
+inline void Process::title(const std::string& title)
+<div class = "function"style = "display : inline-block; ">{
+  title_ = sToW(title);
+  startInfo_.lpTitle = const_cast&ltLPWSTR&gt(title_.c_str());
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt start new child process &gt--------------------------------------</div>
+
+inline bool Process::create(const std::string& appName)
+<div class = "function"style = "display : inline-block; ">{
+  std::wstring app;
+  if (appName.size() == 0)
+    app = appName_;
+  else
+  {
+    app = sToW(appName);
+  }
+  LPCTSTR applic = app.c_str();
+  LPTSTR cmdLine = const_cast&ltLPTSTR&gt(commandLine_.c_str());
+  LPSECURITY_ATTRIBUTES prosec = nullptr;
+  LPSECURITY_ATTRIBUTES thrdsec = nullptr;
+  BOOL inheritHandles = false;
+  DWORD createFlags = CREATE_NEW_CONSOLE;  <div class = "comment" style = "display : block; ">// or CREATE_NO_WINDOW</div>
+  LPVOID environment = nullptr;
+  LPCTSTR currentPath = nullptr;
+  LPSTARTUPINFO pStartInfo = &startInfo_;
+  LPPROCESS_INFORMATION pPrInfo = &procInfo_;
+
+  BOOL OK =
+    CreateProcess(
+      applic, cmdLine, prosec, thrdsec, inheritHandles,
+      createFlags, environment, currentPath, pStartInfo, pPrInfo
+    );
+  return OK;
+}</div>
+
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// child process exit callback processing</div>
+
+<div class = "comment" style = "display : block; ">//----&lt provide new callable object for callback to invoke &gt-----------</div>
+
+inline void Process::setCallBackProcessing(CBP cbp)
+<div class = "function"style = "display : inline-block; ">{
+  cbp_ = cbp;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt function called when child process exists &gt--------------------</div>
+
+inline void Process::callback()
+<div class = "function"style = "display : inline-block; ">{
+  cbp_();
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt Windows API declared function type for callbacks &gt-------------</div>
+
+inline void CALLBACK WaitOrTimerCallback(_In_ PVOID lpParameter, _In_ BOOLEAN TimerOrWaitFired)
+<div class = "function"style = "display : inline-block; ">{
+  Process p;
+  p.callback();
+  return;
+}</div>
+<div class = "comment" style = "display : block; ">//----&lt register callback with Windows API &gt---------------------------</div>
+
+inline void Process::registerCallback()
+<div class = "function"style = "display : inline-block; ">{
+  HANDLE hNewHandle;
+  HANDLE hProcHandle = procInfo_.hProcess;
+  RegisterWaitForSingleObject(
+    &hNewHandle, hProcHandle, WaitOrTimerCallback, 
+    NULL, INFINITE, WT_EXECUTEONLYONCE
+  );
+}</div>
+
+inline HANDLE Process::getProcessHandle()
+<div class = "function"style = "display : inline-block; ">{
+  return procInfo_.hProcess;
+}</div>
+</pre> </body> </html>

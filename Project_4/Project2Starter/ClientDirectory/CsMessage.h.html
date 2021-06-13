@@ -1,0 +1,151 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre>#pragma once
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// CsMessage.h - Defines Message type for C# GUI                     //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                           //</div>
+<div class = "comment" style = "display : block; ">// Jim Fawcett, CSE687 - Object Oriented Design, Spring 2018         //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">/*
+*  Package Operations:
+* ---------------------
+*  This C++\Cli Package contains three classes:
+*  - Sutils:      defines methods to convert between managed strings and native strings
+*  - CsEndPoint:  defines endpoint structurer, e.g., machineName and port
+*  - CsMessage:   defines messages as a collection of attributes.
+*
+*  Required Files:
+* -----------------
+*  CsMessage.h, CsMessage.cpp
+*
+*  Maintenance History:
+* ----------------------
+*  ver 1.0 : 3/27/2018
+*  - first release
+*/</div>
+#include &ltstring&gt
+#include &ltiostream&gt
+
+using namespace System;
+using namespace System::Text;
+using namespace System::Collections::Generic;
+
+namespace MsgPassingCommunication
+{
+  using Key = String;
+  using Value = String;
+  using Attributes = Dictionary&ltString^, String^&gt;
+
+  public ref class Sutils
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    static std::string MtoNstr(String^ s);
+    static String^ NtoMstr(const std::string& s);
+  };</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert from managed to native string &gt----------------------</div>
+
+  std::string Sutils::MtoNstr(System::String^ str)
+<div class = "function"style = "display : inline-block; ">  {
+    std::string temp;
+    for (int i = 0; i &lt str-&gtLength; ++i)
+    {
+      temp.push_back((char)str[i]);
+    }
+    return temp;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert from native to managed string &gt----------------------</div>
+
+  String^ Sutils::NtoMstr(const std::string& str)
+<div class = "function"style = "display : inline-block; ">  {
+    StringBuilder^ sb = gcnew StringBuilder;
+    for (auto ch : str)
+    {
+      sb-&gtAppend((wchar_t)ch);
+    }
+    return sb-&gtToString();
+  }</div>
+
+  public ref class CsEndPoint
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    CsEndPoint()
+<div class = "function"style = "display : inline-block; ">    {
+      machineAddress = gcnew String("");
+      port = 0;
+    }</div>
+    property String^ machineAddress;
+    property int port;
+    static String^ toString(CsEndPoint^ ep);
+    static CsEndPoint^ fromString(String^ epStr);
+  };</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert endpoint to string &gt---------------------------------</div>
+
+  String^ CsEndPoint::toString(CsEndPoint^ ep)
+<div class = "function"style = "display : inline-block; ">  {
+    String^ epStr = ep-&gtmachineAddress + ":" + ep->port.ToString();
+    return epStr;
+  }</div>
+  <div class = "comment" style = "display : block; ">//----&lt convert from string representing endpoint to endpoint &gt------</div>
+
+  CsEndPoint^ CsEndPoint::fromString(String^ epStr)
+<div class = "function"style = "display : inline-block; ">  {
+    CsEndPoint^ ep = gcnew CsEndPoint;
+    int pos = epStr-&gtIndexOf(":");
+    ep-&gtmachineAddress = epStr->Substring(0, pos);
+    String^ portStr = epStr-&gtSubstring(pos + 1, epStr->Length - pos - 1);
+    ep-&gtport = System::Convert::ToInt32(portStr);
+    return ep;
+  }</div>
+
+  public ref class CsMessage
+<div class = "class"style = "display : inline-block; ">  {
+  public:
+    CsMessage() 
+<div class = "function"style = "display : inline-block; ">    {
+      attributes = gcnew Attributes;
+    }</div>
+    CsMessage(CsEndPoint to, CsEndPoint from)
+<div class = "function"style = "display : inline-block; ">    {
+      attributes = gcnew Attributes;
+      attributes-&gtAdd("to", to.machineAddress + ":" + to.port.ToString());
+      attributes-&gtAdd("from", from.machineAddress + ":" + from.port.ToString());
+    }</div>
+    void add(Key^ key, Value^ value)
+<div class = "function"style = "display : inline-block; ">    {
+		try {
+			attributes-&gtAdd(key, value);
+		}
+		catch (...) {}
+	}</div>
+    Value^ value(Key^ key)
+<div class = "function"style = "display : inline-block; ">    {
+		try {
+			return attributes[key];
+		}
+		catch (...) {}
+	}</div>
+    bool remove(Key^ key)
+<div class = "function"style = "display : inline-block; ">    {
+      if (attributes-&gtContainsKey(key))
+      {
+        attributes-&gtRemove(key);
+        return true;
+      }
+      return false;
+    }</div>
+    property Attributes^ attributes;
+
+    void show()
+<div class = "function"style = "display : inline-block; ">    {
+      Console::Write("\n  CsMessage:");
+      auto enumer = attributes-&gtGetEnumerator();
+      while (enumer.MoveNext())
+      {
+        String^ key = enumer.Current.Key;
+        String^ value = enumer.Current.Value;
+        std::cout &lt< "\n  { " << Sutils::MtoNstr(key) << ", " << Sutils::MtoNstr(value) << " }";
+      }
+      Console::Write("\n");
+    }</div>
+  };</div>
+}
+</pre> </body> </html>

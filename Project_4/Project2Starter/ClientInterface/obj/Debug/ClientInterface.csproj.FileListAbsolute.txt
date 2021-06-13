@@ -1,0 +1,54 @@
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\MainWindow.g.cs
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\App.g.cs
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface_MarkupCompile.cache
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface_MarkupCompile.lref
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\ClientInterface.exe.config
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\ClientInterface.exe
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\ClientInterface.pdb
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\Shim.dll
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\Shim.pdb
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csprojAssemblyReference.cache
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\MainWindow.baml
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.g.resources
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.Properties.Resources.resources
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.GenerateResource.cache
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.CoreCompileInputs.cache
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.CopyComplete
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.exe
+C:\Users\chinm\Desktop\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.pdb
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\ClientInterface.exe.config
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\ClientInterface.exe
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\ClientInterface.pdb
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\Shim.dll
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\bin\Debug\Shim.pdb
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csprojAssemblyReference.cache
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\MainWindow.g.cs
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\App.g.cs
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface_MarkupCompile.cache
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface_MarkupCompile.lref
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\MainWindow.baml
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.g.resources
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.Properties.Resources.resources
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.GenerateResource.cache
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.CoreCompileInputs.cache
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.CopyComplete
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.exe
+C:\Users\chinm\Desktop\New folder (3)\Project 3\ChinmayVanjare_project2\Project 2\Chinmay_Vanjare_Project2_968717712\Project2Starter\ClientInterface\obj\Debug\ClientInterface.pdb
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\bin\Debug\ClientInterface.exe.config
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\bin\Debug\ClientInterface.exe
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\bin\Debug\ClientInterface.pdb
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\bin\Debug\Translater.dll
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\bin\Debug\Translater.pdb
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csprojAssemblyReference.cache
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\MainWindow.g.cs
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\App.g.cs
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface_MarkupCompile.cache
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface_MarkupCompile.lref
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\MainWindow.baml
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.g.resources
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.Properties.Resources.resources
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.GenerateResource.cache
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.CoreCompileInputs.cache
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.csproj.CopyComplete
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.exe
+C:\Users\Kuldeep\Desktop\Project2Starter\ClientInterface\obj\Debug\ClientInterface.pdb

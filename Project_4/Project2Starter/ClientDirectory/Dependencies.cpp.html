@@ -1,0 +1,56 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button> <a href = "C:\Users\Kuldeep\Desktop\Project2Starter\x64\Debug\StringUtilities.h.html">StringUtilities.h</a>
+ <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// DependencyAnalysis.h : performs dependency analysis using #include    //</div>
+<div class = "comment" style = "display : block; ">// ver 1.0                                                               //                                                               //</div>
+<div class = "comment" style = "display : block; ">//                                                                       // </div>
+<div class = "comment" style = "display : block; ">// Application   : OOD-S19 Student Solution                              //</div>
+<div class = "comment" style = "display : block; ">// Platform      : Visual Studio Community 2017, Windows 10 Pro x64      //</div>
+<div class = "comment" style = "display : block; ">// Author        : Chinmay Vanjare, Syarcuse University                  //</div>
+<div class = "comment" style = "display : block; ">//				   cuvanjar@syr.edu                                      //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////////</div>
+
+#include "Dependencies.h"
+
+
+
+Dependencies::Dependencies()
+<div class = "function"style = "display : inline-block; ">{
+}</div>
+
+
+Dependencies::~Dependencies()
+<div class = "function"style = "display : inline-block; ">{
+}</div>
+
+#ifdef TEST_DEPENDENCIES
+#include&ltfstream&gt
+#include&ltvector&gt
+#include&ltstring&gt
+#include&ltstreambuf&gt
+#include&ltiostream&gt
+#include&ltsstream&gt
+
+int main()
+<div class = "function"style = "display : inline-block; ">{
+	std::vector&ltstd::string&gt testDependency, fileInlines;
+	std::vector&ltstd::string&gt files;
+	files.push_back("C:\\Users\\Pranav\\source\\repos\\Project2Starter\\test\\display.h");
+	std::string line;
+	for (size_t i = 0; i &lt files.size(); i++)
+	{
+		fileInlines.clear();
+		std::ifstream myFile(files[i]);
+		while (std::getline(myFile, line))
+		{
+			std::istringstream inputStream(line);
+			fileInlines.push_back(line);
+		}
+	}
+	Dependencies dependencies;
+	testDependency= dependencies.includehref(files,fileInlines);
+	for (size_t i = 0; i &lt testDependency.size(); i++) {
+		std::cout &lt< testDependency[i];
+	}
+}</div>
+#endif 
+</pre> </body> </html>
