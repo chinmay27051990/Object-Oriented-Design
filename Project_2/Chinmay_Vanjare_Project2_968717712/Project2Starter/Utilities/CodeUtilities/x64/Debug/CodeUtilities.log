@@ -1,0 +1,11 @@
+﻿  CodeUtilities.cpp
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(22): error C3861: 'Title': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(23): error C3861: 'putline': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(25): error C3861: 'title': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(51): error C3861: 'putline': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(54): error C3861: 'putline': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(56): error C3861: 'title': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(72): error C3861: 'title': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(80): error C3861: 'putline': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(82): error C3861: 'title': identifier not found
+c:\users\pranav\source\repos\project2starter\codeutilities\codeutilities.cpp(89): error C3861: 'putline': identifier not found

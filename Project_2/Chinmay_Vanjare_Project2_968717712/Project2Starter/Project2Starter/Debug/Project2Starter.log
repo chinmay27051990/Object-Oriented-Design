@@ -1,0 +1,20 @@
+﻿  AbstrSynTree.cpp
+  Converter.cpp
+c:\users\pranav\source\repos\project2starter\converter\converter.h(314): warning C4018: '<': signed/unsigned mismatch
+  Display.cpp
+  FileSystem.cpp
+  GrammarHelpers.cpp
+  Loader.cpp
+  Logger.cpp
+  ScopeStack.cpp
+  Semi.cpp
+  Toker.cpp
+  Utilities.cpp
+  ActionsAndRules.cpp
+  ConfigureParser.cpp
+  Executive.cpp
+c:\users\pranav\source\repos\project2starter\converter\converter.h(314): warning C4018: '<': signed/unsigned mismatch
+  Parser.cpp
+  Generating Code...
+c:\users\pranav\source\repos\project2starter\converter\converter.h(131): warning C4715: 'Conversion::parserinConversion': not all control paths return a value
+  Project2Starter.vcxproj -> C:\Users\Pranav\source\repos\Project2Starter\Debug\Project2Starter.exe

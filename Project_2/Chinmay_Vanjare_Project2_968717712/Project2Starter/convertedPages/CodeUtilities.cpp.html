@@ -1,0 +1,93 @@
+<html> <head> <script> function hideFunctions() { var button = document.getElementById("hideFunction"); var x = document.getElementsByClassName("function"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Functions";x[i].style.display = "block"; } else { button.textContent = "Show Functions" ;x[i].style.display = "none"; } } }function hideClasses() { var button = document.getElementById("hideClass"); var x = document.getElementsByClassName("class"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Classes"; x[i].style.display = "block"; } else { button.textContent = "Show Classes"; x[i].style.display = "none"; } } }function hideComments() { var button = document.getElementById("hideComments"); var x = document.getElementsByClassName("comment"); for (var i=0;i<x.length;i++) { if (x[i].style.display === "none") { button.textContent = "Hide Comments"; x[i].style.display = "block"; } else { button.textContent = "Show Comments" ;x[i].style.display = "none"; } } } </script> </head> <body> <button id="hideFunction" onclick="hideFunctions()">Hide Functions</button> <button id="hideClass" onclick="hideClasses()">Hide Classes</button> <button id="hideComments" onclick="hideComments()">Hide Comments</button>  <pre><div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+<div class = "comment" style = "display : block; ">// CodeUtilities.cpp - small, generally useful, helper classes       //</div>
+<div class = "comment" style = "display : block; ">// ver 1.2                                                           //</div>
+<div class = "comment" style = "display : block; ">// Language:    C++, Visual Studio 2017                              //</div>
+<div class = "comment" style = "display : block; ">// Application: Most Projects, CSE687 - Object Oriented Design       //</div>
+<div class = "comment" style = "display : block; ">// Author:      Jim Fawcett, Syracuse University, CST 4-187          //</div>
+<div class = "comment" style = "display : block; ">//              jfawcett@twcny.rr.com                                //</div>
+<div class = "comment" style = "display : block; ">///////////////////////////////////////////////////////////////////////</div>
+
+#include "CodeUtilities.h"
+#include "../StringUtilities/StringUtilities.h"
+#include &ltstring&gt
+#include &ltiostream&gt
+#include &ltfunctional&gt
+
+#ifdef TEST_CODEUTILITIES
+
+using namespace CodeUtilities;
+
+int main(int argc, char* argv[])
+<div class = "function"style = "display : inline-block; ">{
+  <div class = "comment" style = "display : block; ">//Title("Testing CodeUtilities");</div>
+  <div class = "comment" style = "display : block; ">//putline();</div>
+
+  <div class = "comment" style = "display : block; ">//title("Testing ProcessCmdLine");</div>
+  ProcessCmdLine pcl(argc, argv);
+  pcl.usage();
+
+  preface("Command Line: "); pcl.showCmdLine(argc, argv);
+  preface("path:     "); pcl.showPath();
+  preface("Options:  "); pcl.showOptions();
+  preface("Patterns: "); pcl.showPatterns();
+  preface("MaxItems: "); pcl.showMaxItems();
+  std::cout &lt< "\n";
+
+  preface("changing path: ");
+  pcl.path("c:\\su");
+  pcl.showPath();
+
+  preface("adding option: ");
+  pcl.option('/q');
+  pcl.showOptions();
+
+  preface("adding pattern: ");
+  pcl.pattern("*.htm");
+  pcl.showPatterns();
+
+  preface("changing maxItems: ");
+  pcl.maxItems(15);
+  pcl.showMaxItems();
+  <div class = "comment" style = "display : block; ">//putline();</div>
+  preface("new command line: ");
+  pcl.showCmdLine();
+  <div class = "comment" style = "display : block; ">//putline();</div>
+
+  <div class = "comment" style = "display : block; ">//title("Testing Box and PersistFactory");</div>
+  Box&ltdouble&gt boxedDouble = 3.1415927;
+  std::cout &lt< "\n  boxedDouble = " << boxedDouble;
+  boxedDouble = 0.33333;
+  std::cout &lt< "\n  boxedDouble = " << boxedDouble;
+
+  PersistFactory&ltstd::string&gt name = std::string("Jim");
+  name.append(" Fawcett");
+  std::cout &lt< "\n  " << name.toXml("name");
+
+  PersistFactory&ltBox<double&gt> value = Box<double>(9.87654);
+  std::cout &lt< "\n  " << value.toXml("value");
+  value += 3.14159;
+  std::cout &lt< "\n  " << value.toXml("value");
+  std::cout &lt< "\n\n";
+
+  <div class = "comment" style = "display : block; ">//title("test std::string Converter&ltT&gt::toString(T)");</div>
+
+  std::string conv1 = Converter&ltdouble&gt::toString(3.1415927);
+  std::string conv2 = Converter&ltint&gt::toString(73);
+  std::string conv3 = Converter&ltstd::string&gt::toString("a_test_string plus more");
+
+  std::cout &lt< "\n  Converting from values to strings: ";
+  std::cout &lt< conv1 << ", " << conv2 << ", " << conv3;
+  <div class = "comment" style = "display : block; ">//putline();</div>
+
+  <div class = "comment" style = "display : block; ">//title("test T Converter&ltT&gt::toValue(std::string)");</div>
+
+  std::cout &lt< "\n  Converting from strings to values: ";
+  std::cout &lt< Converter<double&gt::toValue(conv1) << ", ";
+  std::cout &lt< Converter<int&gt::toValue(conv2) << ", ";
+  std::cout &lt< Converter<std::string&gt::toValue(conv3);
+
+  <div class = "comment" style = "display : block; ">//putline(2);</div>
+  return 0;
+}</div>
+#endif
+</pre> </body> </html>
